@@ -5,14 +5,14 @@ from models.CNN.model import get_model, optimizer
 from models.generator_proxy import create_generator
 from models.network import Network
 
-dataset = 'cbf'
+dataset = 'gunpoint'
 core_path = '../../..'
 beggining_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
-rho = '0.100'
+rho = '0.001'
 y_dim = specs[dataset]['y_dim']
 x_dim = specs[dataset]['x_dim']
-window_size = 25
+window_size = 5
 
 parameters = dict()
 parameters['batch_size'] = 32
@@ -30,8 +30,8 @@ NN = Network(f'{beggining_path}/rho {rho}/{dataset_type}_{window_size}',
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
 # NN.train(epochs=1)
-# NN.evaluate(weights_dir=f'../Network_weights/{dataset}/rho {rho}')
-NN.summary_experiments(weights_dir=f'{core_path}/Network_weights/{dataset}/rho {rho}', dataset_name=dataset)
+# NN.evaluate(weights_dir=f'{core_path}/Network_weights/{dataset}/rho {rho}')
+# NN.summary_experiments(weights_dir=f'{core_path}/Network_weights/{dataset}/rho {rho}', dataset_name=dataset)
 NN.error_analysis(weights_dir=f'{core_path}/Network_weights/{dataset}/rho {rho}', dataset_name=dataset)
 
 # experiment.end()

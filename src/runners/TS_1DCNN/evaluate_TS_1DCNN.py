@@ -5,12 +5,12 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.OneDCNN.model import get_model, optimizer
 
-dataset = 'gunpoint'
+dataset = 'cbf'
 core_path = '../../..'
 beggining_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'TS'
 y_dim = specs[dataset]['y_dim']
-window_size = 15
+window_size = 5
 
 parameters = dict()
 parameters['batch_size'] = 32

@@ -11,6 +11,7 @@ from models.dataGenerator import DataGenerator
 from networkAnalysis.errors import analysis
 from networkAnalysis.summary import plot_acc_loss, plot_roc_auc, plot_confusion_matrix, plot_class_probabilities
 
+core_path = '../../..'
 
 class Network:
     root_dir = None
@@ -124,30 +125,6 @@ class Network:
                 callbacks=callbacks_list
             )
 
-        acc = self.history.history['accuracy']
-        val_acc = self.history.history['val_accuracy']
-
-        loss = self.history.history['loss']
-        val_loss = self.history.history['val_loss']
-
-        epochs_range = range(epochs)
-
-        """
-        plt.figure(figsize=(8, 8))
-        plt.subplot(1, 2, 1)
-        plt.plot(epochs_range, acc, label='Training Accuracy')
-        plt.plot(epochs_range, val_acc, label='Validation Accuracy')
-        plt.legend(loc='lower right')
-        plt.title('Training and Validation Accuracy')
-
-        plt.subplot(1, 2, 2)
-        plt.plot(epochs_range, loss, label='Training Loss')
-        plt.plot(epochs_range, val_loss, label='Validation Loss')
-        plt.legend(loc='upper right')
-        plt.title('Training and Validation Loss')
-        plt.show()
-        """
-
     def evaluate(self, weights_dir):
 
         self.model.load_weights(join(weights_dir, self.model_name))
@@ -209,9 +186,9 @@ class Network:
 
         model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
         if self.rho:
-            save_dir = f'../experiment_summaries/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
+            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
         else:
-            save_dir = f'../experiment_summaries/{dataset_name}/{model_name_tmp}/'
+            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{model_name_tmp}/'
         makedirs(save_dir, exist_ok=True)
 
         self.target_names = [str(i) for i in range(self.y_dim)]
@@ -223,6 +200,7 @@ class Network:
             y_true = self.test_generator.classes - 1
         else:
             y_true = self.test_generator.classes
+
         if self.y_pred is None:
             self.y_pred = self.model.predict(self.test_generator_analysis, verbose=1)
 
@@ -253,8 +231,12 @@ class Network:
                            metrics=['accuracy'])
 
         if self.y_pred is None:
-            self.y_pred = self.model.predict(self.test_generator, verbose=0)
-        y_true = self.test_generator.classes
+            self.y_pred = self.model.predict(self.test_generator_analysis, verbose=1)
+
+        if type(self.test_generator) is DataGenerator:
+            y_true = self.test_generator.classes - 1
+        else:
+            y_true = self.test_generator.classes
 
         print(y_true.shape)
         print(self.y_pred.shape)
@@ -264,9 +246,9 @@ class Network:
 
         model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
         if self.rho:
-            save_dir = f'../error_analysis/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
+            save_dir = f'{core_path}/error_analysis/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
         else:
-            save_dir = f'../error_analysis/{dataset_name}/{model_name_tmp}/'
+            save_dir = f'{core_path}/error_analysis/{dataset_name}/{model_name_tmp}/'
 
         analysis(self.test_generator_analysis, y_true, self.y_pred, save_dir=save_dir,
                  dataset_name=dataset_name)

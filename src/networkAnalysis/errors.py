@@ -30,12 +30,8 @@ def analysis(X_generator, Y_true, Y_pred, save_dir, dataset_name):
     pred_argm = np.argmax(Y_pred, axis=1)
     for i in tqdm(range(len(X_generator))):
 
-        if type(X_generator) is DirectoryIterator:
-            true = Y_true[i] + 1
-        else:
-            true = Y_true[i]
-
         pred = pred_argm[i]
+        true = Y_true[i]
 
         if true != pred:
             printed_images += 1
@@ -83,17 +79,10 @@ def _calculate_acc_by_dist(X_generator, Y_true, Y_pred, save_dir, dataset_name):
 
         curr_accuracy = 1 - cosine(true_hot, pred)
 
-        if type(X_generator) is DirectoryIterator:
-
-            if type(true) is list or type(true) is np.ndarray:
-                curr_y_arg = true[0] + 1
-            else:
-                curr_y_arg = true + 1
+        if type(true) is list or type(true) is np.ndarray:
+            curr_y_arg = true[0] + 1
         else:
-            if type(true) is list or type(true) is np.ndarray:
-                curr_y_arg = true[0]
-            else:
-                curr_y_arg = true
+            curr_y_arg = true + 1
 
         count_lab = dict(Counter(labels))
         if len(count_lab) == 1:
@@ -155,11 +144,12 @@ def _wrong_sample(X, filename, true, pred, save_dir, dataset_name):
 
     image = (image-image.min())/(image.max()-image.min())
 
+    # case of image and between 3 and 4 channels
     if len(image.shape) == 3 and 5 > image.shape[-1] > 2:
 
         fig = plt.figure(constrained_layout=False, dpi=300)
         gs = fig.add_gridspec(2, 12)
-        fig.suptitle(f'True label: {true} - Predicted: {pred}')
+        fig.suptitle(f'True label: {true+1} - Predicted: {pred+1}')
 
         extra_window = image.shape[1]
         f_axi1 = fig.add_subplot(gs[0, :])
@@ -192,7 +182,7 @@ def _wrong_sample(X, filename, true, pred, save_dir, dataset_name):
         plt.axvline(x=extra_window, linewidth=2, color='r')
         plt.axvline(x=extra_window * 2, linewidth=2, color='r')
 
-    save_path = join(save_dir, f'TS:{ts_id}###True:{true}-Pred:{pred}###{interval[0]}-{interval[1]}.pdf')
+    save_path = join(save_dir, f'TS:{ts_id}###True:{true+1}-Pred:{pred+1}###{interval[0]}-{interval[1]}.pdf')
     plt.savefig(save_path)
     plt.close(fig)
 
@@ -202,7 +192,6 @@ def _accuracy_by_innerposition(X_generator, Y_true, Y_pred, save_dir, dataset_na
 
     for i in tqdm(range(len(X_generator))):
 
-        true = Y_true[i]
         pred = Y_pred[i]
 
         filename = X_generator.filenames[i]
@@ -214,7 +203,6 @@ def _accuracy_by_innerposition(X_generator, Y_true, Y_pred, save_dir, dataset_na
         else:
             filename = filename.replace('.npy', '')
             # print(filename)
-            ts_id = re.search(':(.*)_', filename, re.IGNORECASE).group(1)
             interval = re.search('_(.*)\\|', filename, re.IGNORECASE).group(1)
             interval = list(map(int, interval.split('-')))
 

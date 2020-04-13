@@ -13,7 +13,7 @@ import numpy as np
 from sklearn.metrics import roc_curve, confusion_matrix, auc
 from sklearn.preprocessing import OneHotEncoder
 
-from generate_dataset.files import TimeSeries
+from dataset.files import TimeSeries
 
 dpi = 72
 

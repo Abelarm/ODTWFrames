@@ -1,8 +1,6 @@
 from os import path
 
-from keras_preprocessing.image import ImageDataGenerator
-
-from generate_dataset.dataset import Dataset
+from dataset.dataset import Dataset
 
 
 def generate(beggining_path, rho, window_size, n_classes, base_pattern=False):

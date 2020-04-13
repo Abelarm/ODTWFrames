@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine
 
-from generate_dataset.files import TimeSeries
+from dataset.files import TimeSeries
 
 
 def analysis(X_generator, Y_true, Y_pred, save_dir, dataset_name):

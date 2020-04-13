@@ -5,6 +5,8 @@ from glob import glob
 from os.path import join
 from random import choice
 
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -16,7 +18,7 @@ from sklearn.preprocessing import OneHotEncoder
 from dataset.files import TimeSeries
 
 dpi = 72
-
+core_path = '../../..'
 
 def plot_acc_loss(history, epochs, save_dir):
 
@@ -133,12 +135,12 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
 
 def plot_class_probabilities(X_generator, y_dim, dataset_name, rho, model_name, window_size, y_pred,  save_dir):
 
-    file_name = f'../data/{dataset_name}/' \
+    file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
                 f'-test_id-*.npy'
 
     if dataset_name == 'gunpoint':
-        file_name = f'../data/{dataset_name}/' \
+        file_name = f'{core_path}/data/{dataset_name}/' \
                   f'STREAM_cycles-per-label-20_set-test_id-*.npy'
 
     list = glob(file_name)
@@ -164,15 +166,15 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho, model_name, 
 
         label = int(max(tmp_labels.items(), key=operator.itemgetter(1))[0])
 
-        file = glob(f'../data/{dataset_name}/rho {rho}/{model_name}/test/{label}/{ts_id}_{interval}.png')
+        file = glob(f'{core_path}/data/{dataset_name}/rho {rho}/{model_name}/test/{label}/{ts_id}_{interval}.png')
         if len(file) == 1:
             filename = f'{label}/{ts_id}_{interval}.png'
         else:
-            file = glob(f'../data/{dataset_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
+            file = glob(f'{core_path}/data/{dataset_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
             if len(file) == 1:
                 filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
             else:
-                file = glob(f'../data/{dataset_name}/rho {rho}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
+                file = glob(f'{core_path}/data/{dataset_name}/rho {rho}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
                 if len(file) == 1:
                     filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
                 else:

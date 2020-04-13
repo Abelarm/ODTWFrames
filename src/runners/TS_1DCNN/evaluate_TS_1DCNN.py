@@ -6,7 +6,8 @@ from models.network import Network
 from models.OneDCNN.model import get_model, optimizer
 
 dataset = 'gunpoint'
-beggining_path = f'../../../data/{dataset}/'
+core_path = '../../..'
+beggining_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'TS'
 y_dim = specs[dataset]['y_dim']
 window_size = 15
@@ -28,8 +29,8 @@ NN = Network(f'{beggining_path}/{dataset_type}_{window_size}',
 NN.init_model(get_model, parameters, optimizer, create_generator)
 # NN.train(epochs=1)
 # NN.evaluate(weights_dir=f'../Network_weights/{dataset}')
-NN.summary_experiments(weights_dir=f'../Network_weights/{dataset}/{dataset_type}', dataset_name=dataset)
-NN.error_analysis(weights_dir=f'../Network_weights/{dataset}/{dataset_type}', dataset_name=dataset)
+NN.summary_experiments(weights_dir=f'{core_path}/Network_weights/{dataset}/{dataset_type}', dataset_name=dataset)
+NN.error_analysis(weights_dir=f'{core_path}/Network_weights/{dataset}/{dataset_type}', dataset_name=dataset)
 
 
 # experiment.end()

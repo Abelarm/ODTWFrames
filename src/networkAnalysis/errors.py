@@ -13,6 +13,8 @@ from scipy.spatial.distance import cosine
 
 from dataset.files import TimeSeries
 
+core_path = '../../..'
+
 
 def analysis(X_generator, Y_true, Y_pred, save_dir, dataset_name):
 
@@ -67,12 +69,12 @@ def _calculate_acc_by_dist(X_generator, Y_true, Y_pred, save_dir, dataset_name):
             interval = re.search('_(.*)\\|', filename, re.IGNORECASE).group(1)
             interval = list(map(int, interval.split('-')))
 
-        file_name = f'../data/{dataset_name}/' \
+        file_name = f'{core_path}/data/{dataset_name}/' \
                     f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
                     f'-test_id-{ts_id}.npy'
 
         if dataset_name == 'gunpoint':
-            file_name = f'../data/{dataset_name}/' \
+            file_name = f'{core_path}/data/{dataset_name}/' \
                         f'STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
 
         t = TimeSeries(file_name)
@@ -140,12 +142,12 @@ def _wrong_sample(X, filename, true, pred, save_dir, dataset_name):
         interval = re.search('_(.*)\\|', filename, re.IGNORECASE).group(1)
         interval = list(map(int, interval.split('-')))
 
-    file_name = f'../data/{dataset_name}/' \
+    file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
                 f'-test_id-{ts_id}.npy' \
 
     if dataset_name == 'gunpoint':
-            file_name = f'../data/{dataset_name}/' \
+            file_name = f'{core_path}/data/{dataset_name}/' \
                         f'STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
 
     t = TimeSeries(file_name)

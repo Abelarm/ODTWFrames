@@ -6,7 +6,8 @@ from models.network import Network
 from models.CRNN.model import get_model, optimizer
 
 dataset = 'cbf'
-beggining_path = f'../../../data/{dataset}/'
+core_path = '../../..'
+beggining_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
 rho = '0.100'
 y_dim = specs[dataset]['y_dim']
@@ -27,7 +28,7 @@ NN = Network(f'{beggining_path}/rho {rho}/{dataset_type}_{window_size}',
              model_name=f'DTW_CRNN_{window_size}.hdf5', experiment=None)
 NN.init_model(get_model, parameters, optimizer, create_generator)
 NN.train(epochs=1)
-NN.evaluate(weights_dir=f'../Network_weights/{dataset}')
+NN.evaluate(weights_dir=f'{core_path}/Network_weights/{dataset}')
 
 
 

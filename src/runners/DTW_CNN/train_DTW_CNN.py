@@ -1,6 +1,6 @@
 from comet_ml import Experiment
 
-from dataset.specification import specs
+from utils.specification import specs
 from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
@@ -41,7 +41,7 @@ NN = Network(data_path,
              model_name=f'DTW_CNN_{window_size}.hdf5', experiment=experiment)
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
-NN.train(epochs=10, save_path=weight_dir, from_checkpoint=False)
+NN.train(epochs=100, save_path=weight_dir, from_checkpoint=False)
 NN.evaluate(weights_dir=weight_dir)
 NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
 NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)

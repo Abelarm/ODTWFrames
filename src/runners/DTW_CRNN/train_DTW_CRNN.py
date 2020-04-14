@@ -1,6 +1,4 @@
-from comet_ml import Experiment
-
-from dataset.specification import specs
+from utils.specification import specs
 from models.generator_proxy import create_generator
 from models.network import Network
 from models.CRNN.model import get_model, optimizer

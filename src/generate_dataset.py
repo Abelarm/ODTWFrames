@@ -1,7 +1,7 @@
 from itertools import product
 
 from dataset.generator import generate
-from dataset.specification import specs
+from utils.specification import specs
 
 dataset = ['cbf']
 core_path = '../../..'

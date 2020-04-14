@@ -40,6 +40,8 @@ class Network:
 
         if re.search('_base', self.root_dir, re.IGNORECASE):
             self.base_pattern = True
+            # since there is base in the rho path
+            self.rho = self.rho.replace('_base', '')
         else:
             self.base_pattern = False
 

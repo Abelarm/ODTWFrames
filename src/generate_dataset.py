@@ -1,19 +1,21 @@
 from itertools import product
 
 from dataset.generator import generate
+from dataset.specification import specs
 
-dataset_name = ['rational']
-n_classes = {'rational': 4}
-beggining_path = f'../data/{dataset_name}/'
-rho = ['0.001', '0.100', '0.500']
+dataset = ['cbf']
+core_path = '../../..'
+beggining_path = f'{core_path}/data/{dataset}/'
+rho = ['0.100']
 window_size = [5, 15, 25]
+base = True
 
-for n, r,  w_s in product(dataset_name, rho, window_size):
+for ds, r,  w_s in product(dataset, rho, window_size):
 
-    path = f'../data/{n}/'
+    path = f'../data/{ds}/'
 
-    print(f'Creating dataset for: {n} - {path} - {r} - {w_s}')
+    print(f'Creating dataset for: {ds} - {path} - {r} - {w_s}')
 
-    classes = n_classes[n]
+    classes = specs[ds]['y_dim']
 
-    generate(path, r, w_s, classes)
+    generate(path, r, w_s, classes, base_pattern=base)

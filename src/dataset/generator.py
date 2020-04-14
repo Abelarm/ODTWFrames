@@ -16,13 +16,15 @@ def generate(beggining_path, rho, window_size, n_classes, base_pattern=False):
         stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set'
 
     save_path_image = f'{beggining_path}/rho {rho}/DTW_{window_size}'
+    dtw_starting_path = f'{beggining_path}/rho {rho}'
     if base_pattern:
-        save_path_image = f'{beggining_path}/rho {rho}/DTW_{window_size}_base'
+        save_path_image = f'{beggining_path}/rho {rho}_base/DTW_{window_size}'
+        dtw_starting_path = f'{beggining_path}/rho {rho}_base'
 
     ds = Dataset(f'{beggining_path}{ref_name}',
                  f'{beggining_path}{stream_name}-train_id-*.npy',
                  'train',
-                 f'{beggining_path}/rho {rho}',
+                 dtw_starting_path,
                  rho,
                  window_size=window_size,
                  classes=[x+1 for x in range(n_classes)])
@@ -36,7 +38,7 @@ def generate(beggining_path, rho, window_size, n_classes, base_pattern=False):
     ds = Dataset(f'{beggining_path}{ref_name}',
                  f'{beggining_path}{stream_name}-validation_id-*.npy',
                  'validation',
-                 f'{beggining_path}/rho {rho}',
+                 dtw_starting_path,
                  rho,
                  window_size=window_size,
                  classes=[x+1 for x in range(n_classes)])
@@ -52,7 +54,7 @@ def generate(beggining_path, rho, window_size, n_classes, base_pattern=False):
     ds = Dataset(f'{beggining_path}{ref_name}',
                  f'{beggining_path}{stream_name}-test_id-*.npy',
                  'test',
-                 f'{beggining_path}/rho {rho}',
+                 dtw_starting_path,
                  rho,
                  window_size=window_size,
                  classes=[x+1 for x in range(n_classes)])

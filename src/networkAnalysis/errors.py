@@ -169,7 +169,7 @@ def _wrong_sample(X, filename, true, pred, save_dir, dataset_name):
         true = true[0]
 
         fig = plt.figure(constrained_layout=False, dpi=300)
-        fig.suptitle(f'True label: {true} - Predicted: {pred}')
+        fig.suptitle(f'True label: {true+1} - Predicted: {pred+1}')
 
         if len(image.shape) == 3:
             extra_window = image.shape[1]

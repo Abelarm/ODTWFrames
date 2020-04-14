@@ -33,7 +33,7 @@ class Dataset:
 
         self.reference = RefPattern(self.ref_path)
 
-    def create_image_dataset(self, save_path, ref_ids=None):
+    def create_image_dataset(self, save_path, ref_ids=None, base_pattern=False):
 
         if not ref_ids:
             selected_ids = []
@@ -43,8 +43,12 @@ class Dataset:
             print(f'\n==== Computing images for file {stream} ====\n')
             id_path = stream.split('_id-')[1].split('.npy')[0]
             t = TimeSeries(stream)
+            if base_pattern:
+                channel_iterator = self.classes
+            else:
+                channel_iterator = [int(x['label']) for x in self.reference.lab_patterns]
             if ref_ids:
-                for c, ref_id in zip(self.classes, ref_ids):
+                for c, ref_id in zip(channel_iterator, ref_ids):
                     dtws_tmp.append(DTW(self.reference,
                                         t,
                                         class_num=c,
@@ -52,7 +56,7 @@ class Dataset:
                                         starting_path=self.starting_path,
                                         ref_id=ref_id))
             else:
-                for c in self.classes:
+                for c in channel_iterator:
                     dtw_tmp = DTW(self.reference,
                                   t,
                                   class_num=c,

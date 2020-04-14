@@ -38,6 +38,11 @@ class Network:
         else:
             self.rho = None
 
+        if re.search('_base', self.root_dir, re.IGNORECASE):
+            self.base_pattern = True
+        else:
+            self.base_pattern = False
+
     def init_model(self, model_function, parameters, optimizer, generator_function):
 
         self.parameters = parameters
@@ -187,6 +192,8 @@ class Network:
         model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
         if self.rho:
             save_dir = f'{core_path}/experiment_summaries/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
+            if self.base_pattern:
+                save_dir = f'{core_path}/experiment_summaries/{dataset_name}/rho {self.rho}_base/{model_name_tmp}/'
         else:
             save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{model_name_tmp}/'
         makedirs(save_dir, exist_ok=True)
@@ -247,6 +254,8 @@ class Network:
         model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
         if self.rho:
             save_dir = f'{core_path}/error_analysis/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
+            if self.base_pattern:
+                save_dir = f'{core_path}/error_analysis/{dataset_name}/rho {self.rho}_base/{model_name_tmp}/'
         else:
             save_dir = f'{core_path}/error_analysis/{dataset_name}/{model_name_tmp}/'
 

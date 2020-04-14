@@ -2,6 +2,7 @@ data
 error_analysis
 experiment_summaries
 Network_weights
+src/dataset/generate_files/Synthetic.databases.pdf
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -1,113 +1,62 @@
+from random import choice
+
+import numpy as np
 from keras_preprocessing.image import ImageDataGenerator
 
-from dataset.dataset import Dataset
+from models.dataGenerator import DataGenerator
+from utils.specification import specs
 
-dataset_name = 'cbf'
-beggining_path = f'../data/{dataset_name}/'
-rho = '0.500'
-window_size = 15
+core_path = '../data'
 
+dataset = 'cbf'
+base_pattern = False
+dataset_name = dataset if not base_pattern else dataset+'_base'
 
-ds = Dataset(f'{beggining_path}REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy',
-             f'{beggining_path}STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-train_id-*.npy',
-             'train',
-             f'{beggining_path}/rho {rho}',
-             rho,
-             window_size=window_size,
-             classes=[1, 2, 3])
+rho = '0.100'
+window_size = 5
+rho_name = 'rho '
+rho_name += rho if not base_pattern else rho+'_base'
 
-ds.create_image_dataset(f'{beggining_path}/rho {rho}/NN_DTW_dataset_{window_size}')
-ds.create_series_dataset(f'{beggining_path}/rho {rho}/NN_TS_dataset_{window_size}/train')
+channels = specs[dataset_name]['channels']
+if 2 < channels < 5:
+    datagen = ImageDataGenerator(rescale=1./255,
+                                 featurewise_center=False,
+                                 featurewise_std_normalization=False)
 
-ds = Dataset(f'{beggining_path}/REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy',
-             f'{beggining_path}/STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-validation_id-*.npy',
-             'validation',
-             f'{beggining_path}/rho {rho}',
-             rho,
-             window_size=window_size,
-             classes=[1, 2, 3])
+    train_generator = datagen.flow_from_directory(
+        directory=f'{core_path}/{dataset_name}/{rho_name}/DTW_{window_size}/test',
+        target_size=(100, window_size),
+        color_mode="rgb" if channels != 4 else "rgba",
+        batch_size=1,
+        class_mode="categorical",
+        shuffle=False,
+        seed=42
+    )
+    class_idx = 0
+else:
+    x_dim = (specs[dataset_name]['x_dim'], window_size, channels)
+    train_generator = DataGenerator(f'{core_path}/{dataset}/{rho_name}/DTW_{window_size}/test',
+                                    dim=x_dim,
+                                    n_classes=specs[dataset_name]['y_dim'],
+                                    to_fit=True,
+                                    shuffle=False,
+                                    batch_size=1,
+                                    scaler=None,
+                                    preprocessing=False)
 
-
-ds.create_image_dataset(f'{beggining_path}/rho {rho}/NN_DTW_dataset_{window_size}')
-ds.create_series_dataset(f'{beggining_path}/rho {rho}/NN_TS_dataset_{window_size}/validation')
-
-ds = Dataset(f'{beggining_path}/REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy',
-             f'{beggining_path}/STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-*.npy',
-             'test',
-             f'{beggining_path}/rho {rho}',
-             rho,
-             window_size=window_size,
-             classes=[1, 2, 3])
-
-
-ds.create_image_dataset(f'{beggining_path}/rho {rho}/NN_DTW_dataset_{window_size}', ref_ids=[8, 13, 25])
-ds.create_series_dataset(f'{beggining_path}/rho {rho}/NN_TS_dataset_{window_size}/test')
-
-
-datagen = ImageDataGenerator(rescale=1./255,
-                             featurewise_center=True,
-                             featurewise_std_normalization=True)
+    class_idx = -5
 
 
-train_generator = datagen.flow_from_directory(
-    directory=f'{beggining_path}/rho {rho}/NN_DTW_dataset_{window_size}/train',
-    target_size=(100, window_size),
-    color_mode="rgb",
-    batch_size=32,
-    class_mode="categorical",
-    shuffle=True,
-    seed=42
-)
+len_generator = len(train_generator)
+idx = choice(range(len_generator))
+print(f'selected ID: {idx} \n')
+x, y = train_generator[idx]
 
-x, y = train_generator.next()
-print(x[0].shape)
-print(y[0].shape)
-#
-#
-# val_generator = datagen.flow_from_directory(
-#     directory=r"../data/cbf/rho 0.100/NN_dataset/validation",
-#     target_size=(100, 25),
-#     color_mode="rgb",
-#     batch_size=32,
-#     class_mode="categorical",
-#     shuffle=True,
-#     seed=42
-# )
-#
-# test_generator = datagen.flow_from_directory(
-#     directory=r"../data/cbf/rho 0.100/NN_dataset/test",
-#     target_size=(100, 25),
-#     color_mode="rgb",
-#     batch_size=32,
-#     class_mode="categorical",
-#     shuffle=True,
-#     seed=42
-# )
+print(f"X shape: {x[0].shape}")
+print(f"Y shape: {y[0].shape}")
+print(f"All classes: {np.unique(train_generator.classes)} \n")
 
+filename = train_generator.filenames[idx]
+print(f'Calculated from: {filename}')
 
-# datagen = DataGenerator('../data/cbf/rho 0.100/NN_TSDTW_dataset/train',
-#                         dim=(3, 100, 25, 3),
-#                         n_classes=3,
-#                         to_fit=True,
-#                         shuffle=True,
-#                         batch_size=8)
-# print(datagen.__len__())
-#
-# sample = datagen.__getitem__(datagen.__len__()-2)
-#
-# y_dim = sample[1][0].shape[0]
-#
-# shapes = sample[0][0].shape
-#
-# print(f'TotShape: {sample[0].shape}, timeseries shape: {shapes}, Y shape: {y_dim}')
-#
-# sample = datagen.__getitem__(datagen.__len__()-1)
-#
-# y_dim = sample[1][0].shape[0]
-#
-# shapes = sample[0][0].shape
-#
-# print(f'TotShape: {sample[0].shape}, timeseries shape: {shapes}, Y shape: {y_dim}')
-
-# for i, (x, y) in enumerate(datagen):
-#     print(i, x.shape)
+print(f"Real value of Y: {filename[class_idx]}, one_hot version: {y}")

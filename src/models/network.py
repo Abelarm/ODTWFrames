@@ -156,6 +156,7 @@ class Network:
         if self.y_pred is None:
             self.y_pred = self.model.predict(self.test_generator_analysis, verbose=1)
 
+        # case of custom generator the classes starts from 1 instead of 0
         if type(self.test_generator) is DataGenerator:
             y_true = self.test_generator.classes - 1
         else:
@@ -191,11 +192,14 @@ class Network:
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
+        if self.rho:
+            rho_name = f'rho {self.rho}'
+            if self.base_pattern:
+                rho_name += '_base'
+
         model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
         if self.rho:
-            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
-            if self.base_pattern:
-                save_dir = f'{core_path}/experiment_summaries/{dataset_name}/rho {self.rho}_base/{model_name_tmp}/'
+            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{rho_name}/{model_name_tmp}/'
         else:
             save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{model_name_tmp}/'
         makedirs(save_dir, exist_ok=True)
@@ -226,11 +230,11 @@ class Network:
         if len(self.x_dim) > 2:
             # images
             plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     self.rho, model_name_tmp, self.x_dim[1], self.y_pred, save_dir)
+                                     rho_name, model_name_tmp, self.x_dim[1], self.y_pred, save_dir)
         else:
             # timeseries
             plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     self.rho, model_name_tmp, self.x_dim[0], self.y_pred, save_dir)
+                                     rho_name, model_name_tmp, self.x_dim[0], self.y_pred, save_dir)
 
     def error_analysis(self, weights_dir, dataset_name):
 
@@ -254,10 +258,14 @@ class Network:
         print(self.y_pred[0])
 
         model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
+
         if self.rho:
-            save_dir = f'{core_path}/error_analysis/{dataset_name}/rho {self.rho}/{model_name_tmp}/'
+            rho_name = f'rho {self.rho}'
             if self.base_pattern:
-                save_dir = f'{core_path}/error_analysis/{dataset_name}/rho {self.rho}_base/{model_name_tmp}/'
+                rho_name += '_base'
+
+        if self.rho:
+            save_dir = f'{core_path}/error_analysis/{dataset_name}/{rho_name}/{model_name_tmp}/'
         else:
             save_dir = f'{core_path}/error_analysis/{dataset_name}/{model_name_tmp}/'
 

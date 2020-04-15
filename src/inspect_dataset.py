@@ -3,6 +3,7 @@ from matplotlib import transforms
 
 from dataset.dataset import Dataset
 from dataset.files import TimeSeries, RefPattern, DTW
+from utils.specification import specs
 
 dataset = 'cbf'
 base_pattern = True
@@ -24,8 +25,8 @@ timeseries = t.timeseries
 
 ref = RefPattern(f'../data/{dataset}/{ref_name}')
 
-
-ref_ids = [0, 1, 2, 3, 4, 5, 6]
+dataset_name = dataset if not base_pattern else dataset+'_base'
+ref_ids = specs[dataset_name]['ref_id']
 
 dtws = []
 for idx, ref_id in enumerate(ref_ids):
@@ -54,7 +55,7 @@ f_axi1.axes.get_xaxis().set_visible(False)
 for idx, dtw in enumerate(dtws):
     # AXIS 2
     f_axi = fig.add_subplot(gs[idx+1, 1:], sharex=f_axi1)
-    img = f_axi.imshow(dtw.dtw, origin='lower', aspect='auto')
+    img = f_axi.imshow(dtw.dtw, cmap='plasma', origin='lower', aspect='auto')
     f_axi.axes.get_yaxis().set_visible(False)
     if idx != len(dtws)-1:
         f_axi.axes.get_xaxis().set_visible(False)
@@ -73,6 +74,6 @@ for idx, dtw in enumerate(dtws):
 
 fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91, 0.12, 0.01, 0.64])
-fig.colorbar(img, cax=cbar_ax)
+fig.colorbar(img, cmap='plasma', cax=cbar_ax)
 
 plt.show()

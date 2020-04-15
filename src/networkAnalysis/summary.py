@@ -133,7 +133,7 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
             plt.close(fig)
 
 
-def plot_class_probabilities(X_generator, y_dim, dataset_name, rho, model_name, window_size, y_pred,  save_dir):
+def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred,  save_dir):
 
     file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
@@ -166,7 +166,8 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho, model_name, 
 
         label = int(max(tmp_labels.items(), key=operator.itemgetter(1))[0])
 
-        file = glob(f'{core_path}/data/{dataset_name}/rho {rho}/{model_name}/test/{label}/{ts_id}_{interval}.png')
+
+        file = glob(f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/{label}/{ts_id}_{interval}.png')
         if len(file) == 1:
             filename = f'{label}/{ts_id}_{interval}.png'
         else:
@@ -174,7 +175,7 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho, model_name, 
             if len(file) == 1:
                 filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
             else:
-                file = glob(f'{core_path}/data/{dataset_name}/rho {rho}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
+                file = glob(f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
                 if len(file) == 1:
                     filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
                 else:

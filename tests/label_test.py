@@ -31,7 +31,7 @@ rho_name += rho if not base_pattern else rho+'_base'
 for files in glob(join(core_path, dataset, stream_name)):
     t = TimeSeries(files)
     id = t.get_properties()['id']
-    print(f'Checking ID: {id}')
+    print(f'Checking STREAM ID: {id}')
 
     num_channels = specs[dataset_name]['channels']
     if 2 < num_channels < 5:

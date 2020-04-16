@@ -3,9 +3,9 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'cbf'
+dataset = 'gunpoint'
 core_path = '../../..'
-beggining_path = f'{core_path}/data/{dataset}/'
+beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
 rho = '0.100'
 window_size = 5
@@ -21,10 +21,10 @@ parameters['batch_size'] = 32
 parameters['preprocessing'] = True
 parameters['reload_images'] = False
 
-data_path = f'{beggining_path}/rho {rho}/{dataset_type}_{window_size}'
+data_path = f'{beginning_path}/rho {rho}/{dataset_type}_{window_size}'
 weight_dir = f'{core_path}/Network_weights/{dataset}/rho {rho}'
 if base_pattern:
-    data_path = f'{beggining_path}/rho {rho}_base/{dataset_type}_{window_size}'
+    data_path = f'{beginning_path}/rho {rho}_base/{dataset_type}_{window_size}'
     weight_dir = f'{core_path}/Network_weights/{dataset}/rho {rho}_base/'
 
 # Add the following code anywhere in your machine learning file
@@ -38,8 +38,8 @@ NN = Network(data_path,
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
 # NN.train(epochs=10, save_path=weight_dir, from_checkpoint=False)
-# NN.evaluate(weights_dir=weight_dir)
-NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
-NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
+NN.evaluate(weights_dir=weight_dir)
+# NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
+# NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
 
 # experiment.end()

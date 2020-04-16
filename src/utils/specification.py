@@ -6,6 +6,12 @@ specs = {
         'channels': 2,
         'ref_id': [0, 6]
     },
+    'gunpoint_base': {
+            'y_dim': 2,
+            'x_dim': 150,
+            'channels': 7,
+            'ref_id': [0, 1, 2, 3, 4, 5, 6]
+    },
     'cbf': {
         'y_dim': 3,
         'x_dim': 100,

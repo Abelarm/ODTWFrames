@@ -6,18 +6,23 @@ from dataset.files import TimeSeries, RefPattern, DTW
 from utils.specification import specs
 
 dataset = 'cbf'
-base_pattern = True
+base_pattern = False
 rho = '0.100'
+
+length = 100
+stream_id = 9
 
 if dataset == 'gunpoint':
     ref_name = 'REF_num-5.npy'
-    stream_name = 'STREAM_cycles-per-label-20_set-test_id-0.npy'
-elif base_pattern:
-    ref_name = 'BASE_REF_len-100_noise-5_num-1.npy'
-    stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-0.npy'
+    stream_name = f'STREAM_cycles-per-label-20_set-test_id-{stream_id}.npy'
+    length = 150
 else:
+    stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-{stream_id}.npy'
     ref_name = 'REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy'
-    stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-0.npy'
+
+if base_pattern:
+    ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
+
 
 t = TimeSeries(
     f'../data/{dataset}/{stream_name}')

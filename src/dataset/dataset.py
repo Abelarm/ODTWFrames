@@ -20,7 +20,7 @@ class Dataset:
     window_size = None
     classes = None
 
-    def __init__(self, ref_path, stream_path, stream_set, starting_path, rho, window_size, classes):
+    def __init__(self, ref_path, stream_path, stream_set, starting_path, rho, window_size, classes, max_id):
         self.ref_path = ref_path
         self.stream_path = stream_path
 
@@ -30,6 +30,7 @@ class Dataset:
         self.rho = rho
         self.window_size = window_size
         self.classes = classes
+        self.max_id = max_id
 
         self.reference = RefPattern(self.ref_path)
 
@@ -42,8 +43,12 @@ class Dataset:
             dtws_tmp = []
             print(f'\n==== Computing images for file {stream} ====\n')
             id_path = stream.split('_id-')[1].split('.npy')[0]
+
+            if int(id_path) > self.max_id:
+                continue
+
             t = TimeSeries(stream)
-            if base_pattern:
+            if not base_pattern:
                 channel_iterator = self.classes
             else:
                 channel_iterator = [int(x['label']) for x in self.reference.lab_patterns]

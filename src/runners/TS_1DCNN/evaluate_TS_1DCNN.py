@@ -5,7 +5,7 @@ from models.OneDCNN.model import get_model, optimizer
 
 dataset = 'rational'
 core_path = '../../..'
-beggining_path = f'{core_path}/data/{dataset}/'
+beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'TS'
 y_dim = specs[dataset]['y_dim']
 window_size = 25
@@ -20,7 +20,7 @@ parameters['preprocessing'] = True
 #                         project_name=f'DTW_CNN_{dataset}', workspace="luigig")
 
 
-NN = Network(f'{beggining_path}/{dataset_type}_{window_size}',
+NN = Network(f'{beginning_path}/{dataset_type}_{window_size}',
              x_dim=(window_size, 1), y_dim=y_dim,
              model_name=f'TS_1DCNN_{window_size}.hdf5', experiment=None)
 

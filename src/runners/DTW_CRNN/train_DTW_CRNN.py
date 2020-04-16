@@ -5,7 +5,7 @@ from models.CRNN.model import get_model, optimizer
 
 dataset = 'cbf'
 core_path = '../../..'
-beggining_path = f'{core_path}/data/{dataset}/'
+beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
 rho = '0.100'
 y_dim = specs[dataset]['y_dim']
@@ -21,7 +21,7 @@ parameters['preprocessing'] = True
 #                         project_name="DTW_CNN", workspace="luigig")
 
 
-NN = Network(f'{beggining_path}/rho {rho}/{dataset_type}_{window_size}',
+NN = Network(f'{beginning_path}/rho {rho}/{dataset_type}_{window_size}',
              x_dim=(x_dim, window_size, y_dim), y_dim=y_dim,
              model_name=f'DTW_CRNN_{window_size}.hdf5', experiment=None)
 NN.init_model(get_model, parameters, optimizer, create_generator)

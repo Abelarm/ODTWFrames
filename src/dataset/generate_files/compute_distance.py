@@ -95,18 +95,18 @@ def compute_odtw_distance_matrix(ref, stream, rho):
 
 
 # ! ------------------------------------------------------------------------------------------- GLOBAL PARAMETERS
-pattern = 'rational'  # database name
-sub_pattern = False
+pattern = 'cbf'  # database name
+sub_pattern = True
 length = 100  # length of the reference patterns
 noise_level = 5  # std white noise (rate)
 warp_level, shift_level = 10, 10
 cycles_in_stream = 10  # number of patterns per label in the stream
 patterns_in_ref = 10  # number of  pattern per label in the reference set
-rho = 0.500  # memory parameter
+rho = 0.100  # memory parameter
 
 # stream type
 sets_list = ['train', 'validation', 'test']  # streaming sets
-num_streams_set = [25, 10, 15]  # number of streams in each set
+num_streams_set = [20, 5, 10]  # number of streams in each set
 
 # *                                                     data folders and files
 core_path = '../../../data'
@@ -120,15 +120,14 @@ if pattern == 'gunpoint':
     length = 150
     fileREF = f'/REF_num-{num}.npy'
     fileSTREAM = f'/STREAM_cycles-per-label-{cycles_in_stream}'
-elif sub_pattern:
-    fileREF = '/BASE_REF_len-100_noise-5_num-1.npy'
+else:
     fileSTREAM = '/STREAM_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_cycles-per-label-%d' % \
                  (length, noise_level, warp_level, shift_level, cycles_in_stream)
-else:
     fileREF = '/REF_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_num-%d.npy' % \
               (length, noise_level, warp_level, shift_level, patterns_in_ref)
-    fileSTREAM = '/STREAM_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_cycles-per-label-%d' % \
-                 (length, noise_level, warp_level, shift_level, cycles_in_stream)
+
+if sub_pattern:
+    fileREF = f'/BASE_REF_len-{length}_noise-5_num-1.npy'
 
     # *                                                     odtw core file names
 
@@ -143,7 +142,7 @@ else:
 # ! --------------------------------------------------------------------------------------------- INITIALIZATION
 classpercentages = compute_classpercentages(pattern)
 if sub_pattern:
-    classpercentages = [1.0 / 5.0] * 5
+    classpercentages = [1.0 / 7.0] * 7
 numLabels = len(classpercentages)
 num_stream_cycles = cycles_in_stream * numLabels
 num_ref_patterns = patterns_in_ref * numLabels
@@ -174,7 +173,7 @@ for s in range(len(sets_list)):
     for j in range(num_streams_set[s]):
         # ------------------------------- load streams
         if sets_list[s] == 'test' and pattern == 'gunpoint':
-            cycles_in_stream_test = 10
+            cycles_in_stream_test = 20
             fileSTREAM = f'/STREAM_cycles-per-label-{cycles_in_stream_test}'
         file = '%s_set-%s_id-%d.npy' % (fileSTREAM, sets_list[s], j)
         STREAM = np.load(core_path + folder_name + file)

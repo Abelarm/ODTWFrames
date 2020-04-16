@@ -3,7 +3,7 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'gunpoint'
+dataset = 'cbf'
 core_path = '../../..'
 beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'

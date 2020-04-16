@@ -12,7 +12,7 @@ from utils.specification import specs
 core_path = '../data'
 
 dataset = 'cbf'
-base_pattern = False
+base_pattern = True
 dataset_name = dataset if not base_pattern else dataset+'_base'
 
 rho = '0.100'
@@ -106,7 +106,8 @@ for i, c in enumerate(ref_ids):
     f_axi_1 = fig.add_subplot(gs[1, i])
     f_axi_1.plot(ref.lab_patterns[c]['pattern'])
     f_axi_1.set_xticks([])
-    f_axi_1.set_yticks([])
+    if i != 0:
+        f_axi_1.set_yticks([])
 
     dtw = x[0][:, :, i]
     f_axi_2 = fig.add_subplot(gs[2, i])
@@ -117,5 +118,4 @@ for i, c in enumerate(ref_ids):
 fig.subplots_adjust(right=0.9)
 cbar_ax = fig.add_axes([0.91, 0.12, 0.01, 0.64])
 fig.colorbar(img, cmap='plasma', cax=cbar_ax)
-
 plt.show()

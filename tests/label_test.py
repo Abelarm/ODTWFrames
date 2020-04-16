@@ -7,6 +7,8 @@ from os.path import join
 from dataset.files import TimeSeries
 from utils.specification import specs
 
+import numpy as np
+
 core_path = '../data'
 
 dataset = 'cbf'
@@ -34,6 +36,7 @@ for files in glob(join(core_path, dataset, stream_name)):
     print(f'Checking STREAM ID: {id}')
 
     num_channels = specs[dataset_name]['channels']
+    length = specs[dataset_name]['x_dim']
     if 2 < num_channels < 5:
         final_string = f'*/{id}_*'
         interval_exp = rf'{id}_(.+)\.'
@@ -60,7 +63,14 @@ for files in glob(join(core_path, dataset, stream_name)):
 
         assert real_class == calc_class
 
+        loaded_x = np.load(t_f)
+        print(f'Checking the dtwMat file of file {t_f}')
+        for c in range(loaded_x.shape[-1]):
 
+            dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-' \
+                       f'0_rho-0.100_ref-id-{c}_stream-id-{id}.npy'
 
+            loaded_dtw = np.load(join(core_path, dataset, rho_name, dtw_path))
+            sliced_dtw = loaded_dtw[:, interval[0]:interval[1]]
 
-
+            assert (loaded_x[:, :, c] == sliced_dtw).all()

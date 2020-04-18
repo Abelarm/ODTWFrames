@@ -5,24 +5,24 @@ from dataset.dataset import Dataset
 from dataset.files import TimeSeries, RefPattern, DTW
 from utils.specification import specs
 
-dataset = 'cbf'
-base_pattern = False
+dataset = 'rational'
+base_pattern = True
 rho = '0.100'
+dataset_name = dataset if not base_pattern else dataset+'_base'
 
-length = 100
-stream_id = 9
+length = specs[dataset_name]['x_dim']
+stream_id = 0
 
 if dataset == 'gunpoint':
     ref_name = 'REF_num-5.npy'
     stream_name = f'STREAM_cycles-per-label-20_set-test_id-{stream_id}.npy'
-    length = 150
 else:
-    stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-{stream_id}.npy'
+    stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_' \
+                  f'set-test_id-{stream_id}.npy'
     ref_name = 'REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy'
 
 if base_pattern:
     ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
-
 
 t = TimeSeries(
     f'../data/{dataset}/{stream_name}')
@@ -30,7 +30,6 @@ timeseries = t.timeseries
 
 ref = RefPattern(f'../data/{dataset}/{ref_name}')
 
-dataset_name = dataset if not base_pattern else dataset+'_base'
 ref_ids = specs[dataset_name]['ref_id']
 
 dtws = []
@@ -40,7 +39,9 @@ for idx, ref_id in enumerate(ref_ids):
                   starting_path=f'../data/{dataset}/rho {rho}_base',
                   ref_id=ref_id)
     else:
-        dtw = DTW(ref, t, class_num=idx+1, rho=f'{rho}', starting_path=f'../data/{dataset}/rho {rho}', ref_id=ref_id)
+        dtw = DTW(ref, t, class_num=idx+1, rho=f'{rho}',
+                  starting_path=f'../data/{dataset}/rho {rho}',
+                  ref_id=ref_id)
     dtws.append(dtw)
 
 

@@ -3,7 +3,7 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'cbf'
+dataset = 'rational'
 core_path = '../../..'
 beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
@@ -38,8 +38,8 @@ NN = Network(data_path,
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
 # NN.train(epochs=10, save_path=weight_dir, from_checkpoint=False)
-NN.evaluate(weights_dir=weight_dir)
-# NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
-# NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
+# NN.evaluate(weights_dir=weight_dir)
+NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
+NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
 
 # experiment.end()

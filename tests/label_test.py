@@ -11,7 +11,7 @@ import numpy as np
 
 core_path = '../data'
 
-dataset = 'cbf'
+dataset = 'rational'
 base_pattern = True
 dataset_name = dataset if not base_pattern else dataset+'_base'
 
@@ -33,6 +33,9 @@ rho_name += rho if not base_pattern else rho+'_base'
 for files in glob(join(core_path, dataset, stream_name)):
     t = TimeSeries(files)
     id = t.get_properties()['id']
+    if int(id) > 9:
+        print(f"skipping the id: {id}")
+        continue
     print(f'Checking STREAM ID: {id}')
 
     num_channels = specs[dataset_name]['channels']
@@ -64,7 +67,7 @@ for files in glob(join(core_path, dataset, stream_name)):
         assert real_class == calc_class
 
         loaded_x = np.load(t_f)
-        print(f'Checking the dtwMat file of file {t_f}')
+        print(f'Checking the dtwMat file of STREAM file {t_f}')
         for c in range(loaded_x.shape[-1]):
 
             dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-' \

@@ -6,7 +6,9 @@ from os.path import join
 from random import choice
 
 import matplotlib
-matplotlib.use('Agg')
+
+from utils.specification import specs
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
@@ -17,11 +19,12 @@ from sklearn.preprocessing import OneHotEncoder
 
 from dataset.files import TimeSeries
 
+matplotlib.use('Agg')
 dpi = 72
 core_path = '../../..'
 
-def plot_acc_loss(history, epochs, save_dir):
 
+def plot_acc_loss(history, epochs, save_dir):
     acc = history.history['accuracy']
     val_acc = history.history['val_accuracy']
 
@@ -46,7 +49,6 @@ def plot_acc_loss(history, epochs, save_dir):
 
 
 def plot_roc_auc(n_classes, y_true, y_pred, save_dir):
-
     enc = OneHotEncoder(sparse=False)
     y_true = enc.fit_transform(y_true.reshape(-1, 1))
 
@@ -109,7 +111,6 @@ def plot_roc_auc(n_classes, y_true, y_pred, save_dir):
 
 
 def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
-
     y_pred = np.argmax(y_pred, axis=1)
 
     titles_options = [("Confusion matrix, without normalization", None),
@@ -133,26 +134,36 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
             plt.close(fig)
 
 
-def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred,  save_dir):
-
+def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred, save_dir):
     file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
                 f'-test_id-*.npy'
 
     if dataset_name == 'gunpoint':
         file_name = f'{core_path}/data/{dataset_name}/' \
-                  f'STREAM_cycles-per-label-20_set-test_id-*.npy'
+                    f'STREAM_cycles-per-label-20_set-test_id-*.npy'
 
     list = glob(file_name)
 
-    # select random stream
-    t_name = choice(list)
-    ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
+    if rho_name and '_base' in dataset_name:
+        ds_name = dataset_name if '_base' not in rho_name else dataset_name + '_base'
+        max_stream_id_test = specs[ds_name]['max_stream_id'][-1]
+        # select random stream that is within the calculated dtw
+        while True:
+            t_name = choice(list)
+            ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
+            if int(ts_id) < max_stream_id_test:
+                break
+    else:
+        t_name = choice(list)
+        ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
+
+    print(f'Selected STREAM_ID: {ts_id}')
     t = TimeSeries(t_name)
     timeseries = t.timeseries
     labels = t.labels
 
-    probabilities_value = np.empty((timeseries.shape[0]-window_size, y_dim))
+    probabilities_value = np.empty((timeseries.shape[0] - window_size, y_dim))
     prediction_value = np.zeros(timeseries.shape[0])
 
     x_dim = X_generator.__getitem__(0)[0].shape
@@ -160,12 +171,11 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
 
     for i in range(0, timeseries.shape[0] - window_size):
 
-        interval = f'{i}-{i+window_size}'
+        interval = f'{i}-{i + window_size}'
 
         tmp_labels = dict(Counter(labels[i:i + window_size]))
 
         label = int(max(tmp_labels.items(), key=operator.itemgetter(1))[0])
-
 
         file = glob(f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/{label}/{ts_id}_{interval}.png')
         if len(file) == 1:
@@ -175,7 +185,8 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
             if len(file) == 1:
                 filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
             else:
-                file = glob(f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
+                file = glob(
+                    f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
                 if len(file) == 1:
                     filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
                 else:
@@ -183,11 +194,11 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
 
         index_file = X_generator.filenames.index(filename)
         probabilities_value[i] = y_pred[index_file]
-        prediction_value[i+window_size] = 1 if np.argmax(y_pred[index_file]) == (label-1) else -1
+        prediction_value[i + window_size] = 1 if np.argmax(y_pred[index_file]) == (label - 1) else -1
 
     fig = plt.figure(constrained_layout=False, dpi=dpi)
 
-    plt.subplot(y_dim+1, 1, 1)
+    plt.subplot(y_dim + 1, 1, 1)
     plt.title('Probability per class')
     plt.plot(t.timeseries, 'k', lw=0.7)
     plt.plot(prediction_value, 'red', lw=0.5, alpha=0.6)
@@ -202,15 +213,15 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
 
     for i in range(0, timeseries.shape[0], class_len):
         plt.axvline(x=i, lw=0.5, color='k', linestyle='--')
-        
+
         tmp_labels = dict(Counter(labels[i:i + class_len]))
         label = int(max(tmp_labels.items(), key=operator.itemgetter(1))[0])
 
-        plt.axvspan(i, i + class_len, facecolor=colors[label-1], alpha=0.2)
+        plt.axvspan(i, i + class_len, facecolor=colors[label - 1], alpha=0.2)
 
     for i in range(y_dim):
 
-        plt.subplot(y_dim+1, 1, i+2)
+        plt.subplot(y_dim + 1, 1, i + 2)
         shifted_probabilities = np.append(np.zeros((window_size, 1)), probabilities_value[:, i])
         plt.plot(shifted_probabilities, colors[i], linewidth=0.6)
 
@@ -218,12 +229,10 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
             plt.axvline(x=j, lw=0.5, color='k', linestyle='--')
 
         plt.xlim(0, timeseries.shape[0])
-        y_label = f'Class {i+1}'
+        y_label = f'Class {i + 1}'
         plt.ylabel(y_label)
         plt.yticks([])
         plt.xticks([])
 
     plt.savefig(join(save_dir, 'probability_per_class.pdf'), bbox_inches='tight')
     plt.close(fig)
-
-

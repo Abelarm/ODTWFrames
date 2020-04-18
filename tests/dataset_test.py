@@ -11,7 +11,7 @@ from utils.specification import specs
 
 core_path = '../data'
 
-dataset = 'cbf'
+dataset = 'rational'
 base_pattern = True
 dataset_name = dataset if not base_pattern else dataset+'_base'
 

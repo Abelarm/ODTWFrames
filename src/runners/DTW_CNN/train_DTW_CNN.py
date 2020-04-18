@@ -5,7 +5,7 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'gunpoint'
+dataset = 'rational'
 core_path = '../../..'
 beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
@@ -40,7 +40,7 @@ NN = Network(data_path,
              model_name=f'DTW_CNN_{window_size}.hdf5', experiment=experiment)
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
-NN.train(epochs=80, save_path=weight_dir, from_checkpoint=True, lr='1e-05')
+NN.train(epochs=100, save_path=weight_dir, from_checkpoint=False)
 NN.evaluate(weights_dir=weight_dir)
 NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
 NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)

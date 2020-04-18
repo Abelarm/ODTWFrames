@@ -95,7 +95,7 @@ def compute_odtw_distance_matrix(ref, stream, rho):
 
 
 # ! ------------------------------------------------------------------------------------------- GLOBAL PARAMETERS
-pattern = 'cbf'  # database name
+pattern = 'rational'  # database name
 sub_pattern = True
 length = 100  # length of the reference patterns
 noise_level = 5  # std white noise (rate)

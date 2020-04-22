@@ -19,7 +19,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 from dataset.files import TimeSeries
 
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 dpi = 72
 core_path = '../../..'
 

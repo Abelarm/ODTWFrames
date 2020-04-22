@@ -9,9 +9,12 @@ from sklearn.metrics import classification_report
 
 from models.dataGenerator import DataGenerator
 from networkAnalysis.errors import analysis
+from networkAnalysis.explain import visualize_activation, visualize_gradients
+from networkAnalysis.studyPatterns import pattern_study
 from networkAnalysis.summary import plot_acc_loss, plot_roc_auc, plot_confusion_matrix, plot_class_probabilities
 
 core_path = '../../..'
+
 
 class Network:
     root_dir = None
@@ -271,3 +274,50 @@ class Network:
 
         analysis(self.test_generator_analysis, y_true, self.y_pred, save_dir=save_dir,
                  dataset_name=dataset_name)
+
+    def explain(self, weights_dir, dataset_name):
+
+            self.model.load_weights(join(weights_dir, self.model_name))
+            self.model.compile(optimizer='adam',
+                               loss='categorical_crossentropy',
+                               metrics=['accuracy'])
+
+            if self.rho:
+                rho_name = f'rho {self.rho}'
+                if self.base_pattern:
+                    rho_name += '_base'
+
+            model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
+            if self.rho:
+                save_dir = f'{core_path}/Network_explain/{dataset_name}/{rho_name}/{model_name_tmp}/'
+            else:
+                save_dir = f'{core_path}/Network_explain/{dataset_name}/{model_name_tmp}/'
+            makedirs(save_dir, exist_ok=True)
+
+            for i in range(self.y_dim):
+                visualize_activation(self.model, self.test_generator_analysis, i, save_dir)
+                visualize_activation(self.model, self.test_generator_analysis, i, save_dir, layer_name='activation_1')
+                visualize_gradients(self.model, self.test_generator_analysis, i, save_dir)
+
+    def check_pattern(self, weights_dir, dataset_name):
+
+        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.compile(optimizer='adam',
+                           loss='categorical_crossentropy',
+                           metrics=['accuracy'])
+
+        if self.rho:
+            rho_name = f'rho {self.rho}'
+            if self.base_pattern:
+                rho_name += '_base'
+
+        model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
+        if self.rho:
+            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{rho_name}/{model_name_tmp}/'
+        else:
+            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{model_name_tmp}/'
+        makedirs(save_dir, exist_ok=True)
+
+        pattern_study(self.model, self.test_generator_analysis, range(self.y_dim), save_dir)
+
+

@@ -3,12 +3,12 @@ from itertools import product
 from dataset.generator import generate
 from utils.specification import specs
 
-dataset = ['rational']
+dataset = ['cbf']
 core_path = '../../..'
 beginning_path = f'{core_path}/data/{dataset}/'
 rho = ['0.100']
-window_size = [5]
-base = False
+window_size = [25]
+base = True
 
 for ds, r,  w_s in product(dataset, rho, window_size):
 

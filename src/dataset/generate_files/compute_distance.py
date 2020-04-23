@@ -95,7 +95,7 @@ def compute_odtw_distance_matrix(ref, stream, rho):
 
 
 # ! ------------------------------------------------------------------------------------------- GLOBAL PARAMETERS
-pattern = 'rational'  # database name
+pattern = 'cbf'  # database name
 sub_pattern = True
 length = 100  # length of the reference patterns
 noise_level = 5  # std white noise (rate)
@@ -141,8 +141,6 @@ if sub_pattern:
 
 # ! --------------------------------------------------------------------------------------------- INITIALIZATION
 classpercentages = compute_classpercentages(pattern)
-if sub_pattern:
-    classpercentages = [1.0 / 7.0] * 7
 numLabels = len(classpercentages)
 num_stream_cycles = cycles_in_stream * numLabels
 num_ref_patterns = patterns_in_ref * numLabels

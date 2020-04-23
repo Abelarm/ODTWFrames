@@ -6,7 +6,7 @@ from dataset.files import TimeSeries, RefPattern, DTW
 from utils.specification import specs
 
 dataset = 'cbf'
-base_pattern = False
+base_pattern = True
 rho = '0.100'
 dataset_name = dataset if not base_pattern else dataset+'_base'
 

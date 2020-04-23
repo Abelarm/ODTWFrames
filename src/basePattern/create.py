@@ -111,7 +111,7 @@ class BasePattern:
         np.save(path, to_save)
 
 
-dataset = 'rational'
+dataset = 'cbf'
 if dataset == 'gunpoint':
     ref_name = 'REF_num-5.npy'
     stream_name = 'STREAM_cycles-per-label-20_set-test_id-0.npy'

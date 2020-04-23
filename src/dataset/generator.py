@@ -3,7 +3,7 @@ from os import path
 from dataset.dataset import Dataset
 
 
-def generate(beginning_path, rho, window_size, n_classes, base_pattern=False):
+def generate(beginning_path, rho, window_size, n_classes, max_stream_id, base_pattern=False):
 
     length = 100
 
@@ -31,7 +31,7 @@ def generate(beginning_path, rho, window_size, n_classes, base_pattern=False):
                  rho,
                  window_size=window_size,
                  classes=[x+1 for x in range(n_classes)],
-                 max_id=19)
+                 max_id=max_stream_id[0]-1)
 
     ref_ids = ds.create_image_dataset(save_path_image, base_pattern=base_pattern)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3)
@@ -46,7 +46,7 @@ def generate(beginning_path, rho, window_size, n_classes, base_pattern=False):
                  rho,
                  window_size=window_size,
                  classes=[x+1 for x in range(n_classes)],
-                 max_id=4)
+                 max_id=max_stream_id[1]-1)
 
     ds.create_image_dataset(save_path_image, base_pattern=base_pattern)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3)
@@ -63,7 +63,7 @@ def generate(beginning_path, rho, window_size, n_classes, base_pattern=False):
                  rho,
                  window_size=window_size,
                  classes=[x+1 for x in range(n_classes)],
-                 max_id=9)
+                 max_id=max_stream_id[2]-1)
 
     print(f'Using selected ids: {ref_ids}')
     ds.create_image_dataset(save_path_image, base_pattern=base_pattern, ref_ids=ref_ids)

@@ -8,8 +8,8 @@ core_path = '../../..'
 beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
 rho = '0.100'
-window_size = 5
-base_pattern = True
+window_size = 25
+base_pattern = False
 
 dataset_name = dataset if not base_pattern else dataset+'_base'
 y_dim = specs[dataset_name]['y_dim']
@@ -39,8 +39,8 @@ NN = Network(data_path,
 NN.init_model(get_model, parameters, optimizer, create_generator)
 # NN.train(epochs=10, save_path=weight_dir, from_checkpoint=False)
 # NN.evaluate(weights_dir=weight_dir)
-NN.check_pattern(weights_dir=weight_dir, dataset_name=dataset)
-# NN.explain(weights_dir=weight_dir, dataset_name=dataset)
+# NN.check_pattern(weights_dir=weight_dir, dataset_name=dataset)
+NN.explain(weights_dir=weight_dir, dataset_name=dataset)
 # NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
 # NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
 

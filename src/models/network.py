@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report
 
 from models.dataGenerator import DataGenerator
 from networkAnalysis.errors import analysis
-from networkAnalysis.explain import visualize_activation, visualize_gradients
+from networkAnalysis.explain import visualize_activation, visualize_gradients, make_gradcam_heatmap
 from networkAnalysis.studyPatterns import pattern_study
 from networkAnalysis.summary import plot_acc_loss, plot_roc_auc, plot_confusion_matrix, plot_class_probabilities
 
@@ -295,6 +295,7 @@ class Network:
             makedirs(save_dir, exist_ok=True)
 
             for i in range(self.y_dim):
+                make_gradcam_heatmap(self.model, self.test_generator_analysis, i, save_dir)
                 visualize_activation(self.model, self.test_generator_analysis, i, save_dir)
                 visualize_activation(self.model, self.test_generator_analysis, i, save_dir, layer_name='activation_1')
                 visualize_gradients(self.model, self.test_generator_analysis, i, save_dir)

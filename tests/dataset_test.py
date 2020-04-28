@@ -7,6 +7,7 @@ from keras_preprocessing.image import ImageDataGenerator
 
 from dataset.files import RefPattern, TimeSeries
 from models.dataGenerator import DataGenerator
+from utils.functions import get_id_interval
 from utils.specification import specs
 
 core_path = '../data'
@@ -38,8 +39,6 @@ if 2 < channels < 5:
         seed=42
     )
     class_idx = 0
-    stream_id_exp = rf'[0-9]+\/(.+)_'
-    interval_exp = rf'[0-9]+_(.*)\.'
 
 else:
     x_dim = (specs[dataset_name]['x_dim'], window_size, channels)
@@ -53,12 +52,22 @@ else:
                                     preprocessing=False)
 
     class_idx = -5
-    stream_id_exp = rf'X:(.+)_'
-    interval_exp = rf'X:[0-9]+_(.*)\|'
 
-
+if base_pattern:
+    interval = [1133, 1138]
+    ts_id = 0
+    class_id = 2
+else:
+    interval = []
+    ts_id = 0
 len_generator = len(train_generator)
-idx = choice(range(len_generator))
+
+if len(interval) == 0 or ts_id is None:
+    idx = choice(range(len_generator))
+else:
+    filename_to_search = f'X:{ts_id}_{interval[0]}-{interval[1]}|Y:{class_id}.npy'
+    idx = train_generator.filenames.index(filename_to_search)
+
 print(f'selected sample with ID: {idx} \n')
 x, y = train_generator[idx]
 
@@ -71,7 +80,7 @@ print(f'Calculated from: {filename}')
 
 print(f"Real value of Y: {filename[class_idx]}, one_hot version: {y}")
 
-stream_id = re.search(stream_id_exp, filename, re.IGNORECASE).group(1)
+stream_id, interval = get_id_interval(filename)
 
 if dataset == 'gunpoint':
     ref_name = 'REF_num-5.npy'
@@ -87,9 +96,6 @@ ref = RefPattern(f'../data/{dataset}/{ref_name}')
 t = TimeSeries(
     f'../data/{dataset}/{stream_name}')
 timeseries = t.timeseries
-
-interval = re.search(interval_exp, filename, re.IGNORECASE).group(1)
-interval = list(map(int, interval.split('-')))
 
 fig = plt.figure(constrained_layout=False)
 gs = fig.add_gridspec(3, x[0].shape[-1])

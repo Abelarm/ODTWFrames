@@ -1,17 +1,14 @@
-import re
 from collections import Counter
-from glob import glob
 from os import makedirs
 from os.path import isdir, join
 
-from keras_preprocessing.image import DirectoryIterator
 from tqdm import tqdm
-
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.spatial.distance import cosine
 
 from dataset.files import TimeSeries
+from utils.functions import get_id_interval
 
 core_path = '../../..'
 
@@ -53,17 +50,7 @@ def _calculate_acc_by_dist(X_generator, Y_true, Y_pred, save_dir, dataset_name):
         pred = Y_pred[i]
 
         filename = X_generator.filenames[i]
-        if '.png' in filename:
-            filename = filename.replace('.png', '')
-            # print(filename)
-            ts_id, interval = filename.split("/")[1].split("_")
-            interval = list(map(int, interval.split('-')))
-        else:
-            filename = filename.replace('.npy', '')
-            # print(filename)
-            ts_id = re.search(':(.*)_', filename, re.IGNORECASE).group(1)
-            interval = re.search('_(.*)\\|', filename, re.IGNORECASE).group(1)
-            interval = list(map(int, interval.split('-')))
+        ts_id, interval = get_id_interval(filename)
 
         file_name = f'{core_path}/data/{dataset_name}/' \
                     f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
@@ -119,17 +106,7 @@ def _calculate_acc_by_dist(X_generator, Y_true, Y_pred, save_dir, dataset_name):
 
 def _wrong_sample(X, filename, true, pred, save_dir, dataset_name):
 
-    if '.png' in filename:
-        filename = filename.replace('.png', '')
-        # print(filename)
-        ts_id, interval = filename.split("/")[1].split("_")
-        interval = list(map(int, interval.split('-')))
-    else:
-        filename = filename.replace('.npy', '')
-        # print(filename)
-        ts_id = re.search(':(.*)_', filename, re.IGNORECASE).group(1)
-        interval = re.search('_(.*)\\|', filename, re.IGNORECASE).group(1)
-        interval = list(map(int, interval.split('-')))
+    ts_id, interval = get_id_interval(filename)
 
     file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
@@ -195,16 +172,7 @@ def _accuracy_by_innerposition(X_generator, Y_true, Y_pred, save_dir, dataset_na
         pred = Y_pred[i]
 
         filename = X_generator.filenames[i]
-        if '.png' in filename:
-            filename = filename.replace('.png', '')
-            # print(filename)
-            ts_id, interval = filename.split("/")[1].split("_")
-            interval = list(map(int, interval.split('-')))
-        else:
-            filename = filename.replace('.npy', '')
-            # print(filename)
-            interval = re.search('_(.*)\\|', filename, re.IGNORECASE).group(1)
-            interval = list(map(int, interval.split('-')))
+        ts_id, interval = get_id_interval(filename)
 
         true_hot = X_generator[i][1]
         curr_accuracy = 1 - cosine(true_hot, pred)

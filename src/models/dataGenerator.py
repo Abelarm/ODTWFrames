@@ -3,6 +3,7 @@ from glob import glob
 import numpy as np
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
 from tensorflow.keras.utils import Sequence
+from tqdm import tqdm
 
 
 class DataGenerator(Sequence):
@@ -49,7 +50,7 @@ class DataGenerator(Sequence):
             if not scaler:
                 self.scaler = StandardScaler()
                 print('Fitting the scaler')
-                for n in self.all_samples_name:
+                for n in tqdm(self.all_samples_name):
                     x = np.load(f'{n}')
                     if len(x.shape) > 2:
                         res_x = x.reshape((x.shape[0]*x.shape[1], -1))

@@ -8,20 +8,21 @@ import matplotlib.pyplot as plt
 from tf_explain.core import ExtractActivations
 
 
-def visualize_activation(model, generator, class_num, save_dir, layer_name='conv2d'):
-    for x, y in generator:
-
-        if y.argmax() == class_num:
-            selected_x = x
-            break
-
+def _get_activation(model, x, layer_name):
     explainer = ExtractActivations(batch_size=1)
 
     activation_model = explainer.generate_activations_graph(model, layer_name)
-    predictions = activation_model.predict(selected_x, batch_size=1)
+    predictions = activation_model.predict(x, batch_size=1)
     if type(predictions) is list:
         predictions = predictions[-1]
     predictions = predictions[0]
+
+    return predictions
+
+
+def visualize_activation(model, selected_x, class_num, save_dir, layer_name='conv2d'):
+
+    predictions = _get_activation(model, selected_x, layer_name)
 
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(4, 8)
@@ -42,30 +43,36 @@ def visualize_activation(model, generator, class_num, save_dir, layer_name='conv
     plt.close(fig)
 
 
+def _get_gradients(model, x, y, mult_input=True):
+    with tf.GradientTape() as tape:
+        inputs = tf.cast(x, tf.float32)
+        tape.watch(inputs)
+        predictions = model(inputs)
+        loss = tf.keras.losses.categorical_crossentropy(
+            y, predictions
+        )
+
+    grad = tape.gradient(loss, inputs)
+    if mult_input:
+        input_grad = tf.multiply(inputs, grad)
+        return input_grad
+    else:
+        return grad
+
+
 def visualize_gradients(model, generator, class_num, save_dir):
     for x, y in generator:
 
         if y.argmax() == class_num:
             selected_x = x
+            selected_y = y
             break
 
-    expected_output = y
-
-    with tf.GradientTape() as tape:
-        inputs = tf.cast(selected_x, tf.float32)
-        tape.watch(inputs)
-        predictions = model(inputs)
-        loss = tf.keras.losses.categorical_crossentropy(
-            expected_output, predictions
-        )
-
-    grad = tape.gradient(loss, inputs)
-    input_grad = tf.multiply(inputs, grad)
+    input_grad = _get_gradients(model, selected_x, selected_y)
 
     fig = plt.figure(constrained_layout=True)
     gs = fig.add_gridspec(2, 4)
     row = -1
-
     for c in range(input_grad.shape[-1]):
 
         if c % 4 == 0:
@@ -84,18 +91,12 @@ def visualize_gradients(model, generator, class_num, save_dir):
     plt.close(fig)
 
 
-def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_name='conv2d_3'):
+def _get_gradcam_heatmap(model, sample, last_conv_layer_name='conv2d_3'):
 
-    for x, y in generator:
-
-        if y.argmax() == class_num:
-            selected_x = x
-            break
-
-    if selected_x.shape[2] == 5:
+    if sample.shape[2] == 5:
         classifier_layer_names = ['batch_normalization_1', 'activation_1', 'flatten', 'dense',
                                   'dense_1', 'dense_2']
-    elif selected_x.shape[2] > 5:
+    elif sample.shape[2] > 5:
         classifier_layer_names = ['batch_normalization_1', 'activation_1', 'max_pooling2d_2',
                                   'flatten', 'dense', 'dense_1', 'dense_2']
 
@@ -116,7 +117,7 @@ def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_
     # with respect to the activations of the last conv layer
     with tf.GradientTape() as tape:
         # Compute activations of the last conv layer and make the tape watch it
-        last_conv_layer_output = last_conv_layer_model(selected_x)
+        last_conv_layer_output = last_conv_layer_model(sample)
         tape.watch(last_conv_layer_output)
         # Compute class predictions
         preds = classifier_model(last_conv_layer_output)
@@ -125,6 +126,8 @@ def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_
 
     # This is the gradient of the top predicted class with regard to
     # the output feature map of the last conv layer
+    # the gradient is not calculated on the loss but on the output of the last_conv_layer
+    # meaning we maximize the output!!!
     grads = tape.gradient(top_class_channel, last_conv_layer_output)
 
     # This is a vector where each entry is the mean intensity of the gradient
@@ -144,6 +147,19 @@ def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_
 
     # For visualization purpose, we will also normalize the heatmap between 0 & 1
     heatmap = np.maximum(heatmap, 0) / np.max(heatmap)
+
+    return heatmap
+
+
+def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_name='conv2d_3'):
+    for x, y in generator:
+
+        if y.argmax() == class_num:
+            selected_x = x
+            break
+
+    heatmap = _get_gradcam_heatmap(model, selected_x,
+                                   last_conv_layer_name=last_conv_layer_name)
 
     plt.imshow(heatmap, aspect='auto', origin='lower')
     plt.savefig(join(save_dir, f'GradCAM for class {class_num}.pdf'), bbox_inches='tight')

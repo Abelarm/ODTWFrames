@@ -5,8 +5,6 @@ from glob import glob
 from os.path import join
 from random import choice
 
-import matplotlib
-
 from utils.specification import specs
 
 import matplotlib.pyplot as plt
@@ -135,6 +133,7 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
 
 
 def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred, save_dir):
+
     file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
                 f'-test_id-*.npy'
@@ -143,19 +142,19 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
         file_name = f'{core_path}/data/{dataset_name}/' \
                     f'STREAM_cycles-per-label-20_set-test_id-*.npy'
 
-    list = glob(file_name)
+    file_list = glob(file_name)
 
     if rho_name and '_base' in dataset_name:
         ds_name = dataset_name if '_base' not in rho_name else dataset_name + '_base'
         max_stream_id_test = specs[ds_name]['max_stream_id'][-1]
         # select random stream that is within the calculated dtw
         while True:
-            t_name = choice(list)
+            t_name = choice(file_list)
             ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
             if int(ts_id) < max_stream_id_test:
                 break
     else:
-        t_name = choice(list)
+        t_name = choice(file_list)
         ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
 
     print(f'Selected STREAM_ID: {ts_id}')

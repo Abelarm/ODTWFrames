@@ -3,12 +3,12 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'rational'
+dataset = 'cbf'
 core_path = '../../..'
 beginning_path = f'{core_path}/data/{dataset}/'
 dataset_type = 'DTW'
 rho = '0.100'
-window_size = 5
+window_size = 25
 base_pattern = True
 
 dataset_name = dataset if not base_pattern else dataset+'_base'

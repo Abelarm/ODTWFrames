@@ -32,21 +32,21 @@ rho_name += rho if not base_pattern else rho+'_base'
 
 for files in glob(join(core_path, dataset, stream_name)):
     t = TimeSeries(files)
-    id = t.get_properties()['id']
-    if int(id) > 9:
-        print(f"skipping the id: {id}")
+    ts_id = t.get_properties()['id']
+    if int(ts_id) > 9:
+        print(f"skipping the id: {ts_id}")
         continue
-    print(f'Checking STREAM ID: {id}')
+    print(f'Checking STREAM ID: {ts_id}')
 
     num_channels = specs[dataset_name]['channels']
     length = specs[dataset_name]['x_dim']
     if 2 < num_channels < 5:
-        final_string = f'*/{id}_*'
-        interval_exp = rf'{id}_(.+)\.'
-        class_exp = rf'test\/(.+)\/{id}'
+        final_string = f'*/{ts_id}_*'
+        interval_exp = rf'{ts_id}_(.+)\.'
+        class_exp = rf'test\/(.+)\/{ts_id}'
     else:
-        final_string = f'X:{id}_*'
-        interval_exp = rf'X:{id}_(.*)\|'
+        final_string = f'X:{ts_id}_*'
+        interval_exp = rf'X:{ts_id}_(.*)\|'
         class_exp = r'Y:(.+)\.'
 
     training_files = glob(join(core_path, dataset, rho_name, f'DTW_{window_size}', 'test', final_string))
@@ -71,7 +71,7 @@ for files in glob(join(core_path, dataset, stream_name)):
         for c in range(loaded_x.shape[-1]):
 
             dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-' \
-                       f'0_rho-0.100_ref-id-{c}_stream-id-{id}.npy'
+                       f'0_rho-0.100_ref-id-{c}_stream-id-{ts_id}.npy'
 
             loaded_dtw = np.load(join(core_path, dataset, rho_name, dtw_path))
             sliced_dtw = loaded_dtw[:, interval[0]:interval[1]]

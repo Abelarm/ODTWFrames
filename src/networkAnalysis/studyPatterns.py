@@ -35,7 +35,7 @@ def pattern_study(model, generator, classes, save_dir):
 
             y_pred = model.predict(x=x,batch_size=1)
 
-            acc = 1- cosine(y, y_pred)
+            acc = 1 - cosine(y, y_pred)
 
             if chan in accuracy_dict:
                 accuracy_dict[chan].append(acc)

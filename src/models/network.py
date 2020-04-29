@@ -9,7 +9,7 @@ from sklearn.metrics import classification_report
 
 from models.dataGenerator import DataGenerator
 from networkAnalysis.errors import analysis
-from networkAnalysis.explain import visualize_activation, visualize_gradients, make_gradcam_heatmap
+from networkAnalysis.explain import visualize_activation
 from networkAnalysis.explainSample import explain_sample
 from networkAnalysis.studyPatterns import pattern_study
 from networkAnalysis.summary import plot_acc_loss, plot_roc_auc, plot_confusion_matrix, plot_class_probabilities
@@ -28,7 +28,12 @@ class Network:
     train_generator = None
     validate_generator = None
     test_generator = None
+    test_generator_analysis = None
     y_pred = None
+    optimizer = None
+    epochs = None
+    history = None
+    target_names = None
 
     def __init__(self, root_dir, x_dim, y_dim, model_name, experiment=None):
 
@@ -55,10 +60,9 @@ class Network:
         self.parameters = parameters
 
         self.train_generator, \
-        self.validate_generator, \
-        self.test_generator, \
-        self.test_generator_analysis = generator_function(self.root_dir, self.x_dim, self.y_dim,
-                                                          **self.parameters)
+            self.validate_generator,  \
+            self.test_generator, \
+            self.test_generator_analysis = generator_function(self.root_dir, self.x_dim, self.y_dim, **self.parameters)
 
         self.model = model_function(self.x_dim, self.y_dim)
 
@@ -279,34 +283,33 @@ class Network:
 
     def explain(self, weights_dir, dataset_name):
 
-            self.model.load_weights(join(weights_dir, self.model_name))
-            self.model.compile(optimizer='adam',
-                               loss='categorical_crossentropy',
-                               metrics=['accuracy'])
+        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.compile(optimizer='adam',
+                           loss='categorical_crossentropy',
+                           metrics=['accuracy'])
 
-            if self.rho:
-                rho_name = f'rho {self.rho}'
-                if self.base_pattern:
-                    rho_name += '_base'
+        if self.rho:
+            rho_name = f'rho {self.rho}'
+            if self.base_pattern:
+                rho_name += '_base'
 
-            model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
-            if self.rho:
-                save_dir = f'{core_path}/Network_explain/{dataset_name}/{rho_name}/{model_name_tmp}/'
-            else:
-                save_dir = f'{core_path}/Network_explain/{dataset_name}/{model_name_tmp}/'
-            makedirs(save_dir, exist_ok=True)
+        model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
+        if self.rho:
+            save_dir = f'{core_path}/Network_explain/{dataset_name}/{rho_name}/{model_name_tmp}/'
+        else:
+            save_dir = f'{core_path}/Network_explain/{dataset_name}/{model_name_tmp}/'
+        makedirs(save_dir, exist_ok=True)
 
-            for i in range(self.y_dim):
+        for i in range(self.y_dim):
+            ds_name = dataset_name if not self.base_pattern else dataset_name + '_base'
+            relevant_sample_name = specs[ds_name][f'repre_samples_{self.x_dim[1]}'][i]
 
-                ds_name = dataset_name if not self.base_pattern else dataset_name + '_base'
-                relevant_sample_name = specs[ds_name][f'repre_samples_{self.x_dim[1]}'][i]
+            idx = self.test_generator_analysis.filenames.index(relevant_sample_name)
+            selected_x, selected_y = self.test_generator_analysis[idx]
 
-                idx = self.test_generator_analysis.filenames.index(relevant_sample_name)
-                selected_x, selected_y = self.test_generator_analysis[idx]
-
-                explain_sample(dataset_name, relevant_sample_name, selected_x, selected_y, self.model, i, save_dir)
-                visualize_activation(self.model, selected_x, i, save_dir)
-                visualize_activation(self.model, selected_x, i, save_dir, layer_name='activation_1')
+            explain_sample(dataset_name, relevant_sample_name, selected_x, selected_y, self.model, i, save_dir)
+            visualize_activation(self.model, selected_x, i, save_dir)
+            visualize_activation(self.model, selected_x, i, save_dir, layer_name='activation_1')
 
     def check_pattern(self, weights_dir, dataset_name):
 
@@ -328,5 +331,3 @@ class Network:
         makedirs(save_dir, exist_ok=True)
 
         pattern_study(self.model, self.test_generator_analysis, range(self.y_dim), save_dir)
-
-

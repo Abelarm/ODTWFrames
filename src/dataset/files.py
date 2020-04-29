@@ -107,7 +107,8 @@ class DTW:
         self.from_pattern_idx = selected
 
         if 'gunpoint' in starting_path:
-            self.path = f'dtwMat-{time_series_prop["set"]}_rho-{rho}_ref-id-{selected}_stream-id-{time_series_prop["id"]}.npy'
+            self.path = f'dtwMat-{time_series_prop["set"]}_rho-{rho}' \
+                        '_ref-id-{selected}_stream-id-{time_series_prop["id"]}.npy'
         else:
             self.path = f'dtwMat-{time_series_prop["set"]}_length-{time_series_prop["length"]}_' \
                    f'noise-{time_series_prop["noise"]}_warp-{time_series_prop["warp"]}' \

@@ -119,6 +119,7 @@ else:
     ref_name = 'REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy'
     stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-0.npy'
 
+
 t = TimeSeries(
     f'../../data/{dataset}/{stream_name}')
 timeseries = t.timeseries
@@ -130,4 +131,3 @@ base = BasePattern(len_ref, timeseries.min(), timeseries.max())
 base.compute_pattern()
 
 base.save(f'../../data/{dataset}')
-

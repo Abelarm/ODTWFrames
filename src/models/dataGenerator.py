@@ -7,25 +7,34 @@ from tqdm import tqdm
 
 
 class DataGenerator(Sequence):
-    """Generates data for Keras
-    Sequence based data generator. Suitable for building data generator for training and prediction.
+    """Generates data for Keras networks'
+    Sequence based data generator. Suitable for building data generator.
+
+    Can be used for generate data from 3D matrix (DTW-images) and 2D matrix (time series)
     """
-    def __init__(self, sequence_path, dim, n_classes,
+    def __init__(self,
+                 sequence_path,
+                 dim,
+                 n_classes,
                  categorical=True,
                  to_fit=True,
                  batch_size=32,
                  shuffle=True,
                  preprocessing=False,
                  scaler=None):
-        """Initialization
-
-        :param list_IDs: list of all 'label' ids to use in the generator
-        :param to_fit: True to return X and y, False to return X only
-        :param batch_size: batch size at each iteration
-        :param dim: tuple indicating image dimension
-        :param n_classes: number of output masks
-        :param shuffle: True to shuffle label indexes after every epoch
         """
+
+        :param sequence_path: Path where is located the sequence
+        :param dim: (tuple) of X dimensions
+        :param n_classes: number of classes of the data
+        :param categorical: if transform to categorical
+        :param to_fit: it is used for fit purpose of for prediction
+        :param batch_size: batch size of the single sample
+        :param shuffle: True o False
+        :param preprocessing: if pre-process the data
+        :param scaler: scaler used in other DataGenerator, fit on train data, transform on test,val data
+        """
+
         self.sequence_path = sequence_path
         self.categorical = categorical
         self.to_fit = to_fit

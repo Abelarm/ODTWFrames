@@ -15,12 +15,12 @@ def explain_sample(dataset_name, relevant_sample_name, selected_x, selected_y, m
     ts_id, interval = get_id_interval(relevant_sample_name)
 
     filename = f'{core_path}/data/{dataset_name}/' \
-                f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
-                f'-test_id-{ts_id}.npy'
+               f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
+               f'-test_id-{ts_id}.npy'
 
     if 'gunpoint' in dataset_name:
         filename = f'{core_path}/data/{dataset_name}/' \
-                    f'STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
+                   f'STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
 
     t = TimeSeries(filename)
     timeseries = t.timeseries[interval[0]: interval[1]]

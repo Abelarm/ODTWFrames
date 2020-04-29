@@ -86,7 +86,8 @@ if dataset == 'gunpoint':
     ref_name = 'REF_num-5.npy'
     stream_name = f'STREAM_cycles-per-label-20_set-test_id-{stream_id}.npy'
 else:
-    stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-{stream_id}.npy'
+    stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_'\
+                  f'set-test_id-{stream_id}.npy'
     ref_name = 'REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy'
 
 if base_pattern:

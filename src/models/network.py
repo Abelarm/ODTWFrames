@@ -7,12 +7,16 @@ from sklearn.preprocessing import OneHotEncoder
 from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 from sklearn.metrics import classification_report
 
+import matplotlib
+matplotlib.use('Agg')
+
 from models.dataGenerator import DataGenerator
 from networkAnalysis.errors import analysis
-from networkAnalysis.explain import visualize_activation
+from networkAnalysis.explain import visualize_activation, variance_of_activations
 from networkAnalysis.explainSample import explain_sample
 from networkAnalysis.studyPatterns import pattern_study
 from networkAnalysis.summary import plot_acc_loss, plot_roc_auc, plot_confusion_matrix, plot_class_probabilities
+from utils.functions import Paths
 from utils.specification import specs
 
 core_path = '../../..'
@@ -34,14 +38,17 @@ class Network:
     epochs = None
     history = None
     target_names = None
+    pattern_name = None
 
-    def __init__(self, root_dir, x_dim, y_dim, model_name, experiment=None):
+    def __init__(self, root_dir, x_dim, y_dim, model_name, experiment=None, pattern_name=''):
 
         self.root_dir = root_dir
         self.x_dim = x_dim
         self.y_dim = y_dim
         self.experiment = experiment
         self.model_name = model_name
+        self.pattern_name = pattern_name
+        self.path_class = Paths()
 
         if re.search('rho (.*)/', self.root_dir, re.IGNORECASE):
             self.rho = re.search('rho (.*)/', self.root_dir, re.IGNORECASE).group(1)
@@ -52,6 +59,7 @@ class Network:
             self.base_pattern = True
             # since there is base in the rho path
             self.rho = self.rho.replace('_base', '')
+            self.rho = self.rho.replace(f'_{pattern_name}', '')
         else:
             self.base_pattern = False
 
@@ -62,7 +70,9 @@ class Network:
         self.train_generator, \
             self.validate_generator,  \
             self.test_generator, \
-            self.test_generator_analysis = generator_function(self.root_dir, self.x_dim, self.y_dim, **self.parameters)
+            self.test_generator_analysis = generator_function(self.root_dir, self.x_dim, self.y_dim,
+                                                              base_pattern=self.base_pattern,
+                                                              **self.parameters)
 
         self.model = model_function(self.x_dim, self.y_dim)
 
@@ -201,21 +211,14 @@ class Network:
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
-        if self.rho:
-            rho_name = f'rho {self.rho}'
-            if self.base_pattern:
-                rho_name += '_base'
-
-        model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
-        if self.rho:
-            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{rho_name}/{model_name_tmp}/'
-        else:
-            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{model_name_tmp}/'
+        rho_name = self.path_class.get_rho_name()
+        model_name = self.path_class.get_model_name()
+        save_dir = self.path_class.get_summaries_path()
         makedirs(save_dir, exist_ok=True)
 
         self.target_names = [str(i) for i in range(self.y_dim)]
 
-        if hasattr(self, 'history'):
+        if hasattr(self, 'history') and self.history is not None:
             plot_acc_loss(self.history, self.epochs, save_dir)
 
         if type(self.test_generator) is DataGenerator:
@@ -239,11 +242,11 @@ class Network:
         if len(self.x_dim) > 2:
             # images
             plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     rho_name, model_name_tmp, self.x_dim[1], self.y_pred, save_dir)
+                                     rho_name, model_name, self.x_dim[1], self.y_pred, save_dir)
         else:
             # timeseries
             plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     rho_name, model_name_tmp, self.x_dim[0], self.y_pred, save_dir)
+                                     rho_name, model_name, self.x_dim[0], self.y_pred, save_dir)
 
     def error_analysis(self, weights_dir, dataset_name):
 
@@ -266,17 +269,7 @@ class Network:
         print(y_true[0])
         print(self.y_pred[0])
 
-        model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
-
-        if self.rho:
-            rho_name = f'rho {self.rho}'
-            if self.base_pattern:
-                rho_name += '_base'
-
-        if self.rho:
-            save_dir = f'{core_path}/error_analysis/{dataset_name}/{rho_name}/{model_name_tmp}/'
-        else:
-            save_dir = f'{core_path}/error_analysis/{dataset_name}/{model_name_tmp}/'
+        save_dir = self.path_class.get_error_path()
 
         analysis(self.test_generator_analysis, y_true, self.y_pred, save_dir=save_dir,
                  dataset_name=dataset_name)
@@ -288,17 +281,10 @@ class Network:
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
-        if self.rho:
-            rho_name = f'rho {self.rho}'
-            if self.base_pattern:
-                rho_name += '_base'
-
-        model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
-        if self.rho:
-            save_dir = f'{core_path}/Network_explain/{dataset_name}/{rho_name}/{model_name_tmp}/'
-        else:
-            save_dir = f'{core_path}/Network_explain/{dataset_name}/{model_name_tmp}/'
+        save_dir = self.path_class.get_explain_path()
         makedirs(save_dir, exist_ok=True)
+
+        samples = []
 
         for i in range(self.y_dim):
             ds_name = dataset_name if not self.base_pattern else dataset_name + '_base'
@@ -306,10 +292,13 @@ class Network:
 
             idx = self.test_generator_analysis.filenames.index(relevant_sample_name)
             selected_x, selected_y = self.test_generator_analysis[idx]
+            samples.append((selected_x, selected_y))
 
             explain_sample(dataset_name, relevant_sample_name, selected_x, selected_y, self.model, i, save_dir)
             visualize_activation(self.model, selected_x, i, save_dir)
             visualize_activation(self.model, selected_x, i, save_dir, layer_name='activation_1')
+
+        variance_of_activations(self.model, samples, save_dir)
 
     def check_pattern(self, weights_dir, dataset_name):
 
@@ -318,16 +307,7 @@ class Network:
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
-        if self.rho:
-            rho_name = f'rho {self.rho}'
-            if self.base_pattern:
-                rho_name += '_base'
-
-        model_name_tmp = self.model_name.replace('.hdf5', '').replace('_CNN', '').replace('_1DCNN', '')
-        if self.rho:
-            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{rho_name}/{model_name_tmp}/'
-        else:
-            save_dir = f'{core_path}/experiment_summaries/{dataset_name}/{model_name_tmp}/'
+        save_dir = self.path_class.get_summaries_path()
         makedirs(save_dir, exist_ok=True)
 
         pattern_study(self.model, self.test_generator_analysis, range(self.y_dim), save_dir)

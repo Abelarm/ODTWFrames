@@ -163,3 +163,37 @@ def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_
 
     plt.imshow(heatmap, aspect='auto', origin='lower')
     plt.savefig(join(save_dir, f'GradCAM for class {class_num}.pdf'), bbox_inches='tight')
+
+
+def variance_of_activations(model, relevant_sample, save_dir, layer_name='conv2d'):
+
+    activations = []
+    for (selected_x, selected_y) in relevant_sample:
+        activations.append(_get_activation(model, selected_x, layer_name))
+
+    activations = np.asarray(activations)
+    activations_var = np.var(activations, axis=0)
+
+    fig = plt.figure(constrained_layout=True)
+    gs = fig.add_gridspec(4, 8)
+
+    row = -1
+    for c in range(activations_var.shape[-1]):
+        if c == 32:
+            break
+        if c % 8 == 0:
+            row += 1
+        f_axi = fig.add_subplot(gs[row, c % 8])
+        f_axi.imshow(activations_var[:, :, c], cmap='plasma', origin='lower', aspect='auto')
+        f_axi.axes.get_yaxis().set_visible(False)
+        f_axi.axes.get_xaxis().set_visible(False)
+        f_axi.set_title(f'#f: {c}')
+
+    plt.savefig(join(save_dir, f'Variance calculated over the all classes of the layer:{layer_name}.pdf'),
+                bbox_inches='tight')
+    plt.close(fig)
+
+
+
+
+

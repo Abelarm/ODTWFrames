@@ -76,7 +76,7 @@ class Dataset:
 
             for i, (v, l) in enumerate(zip(images, labels)):
 
-                if v.shape[-1] < 3 or v.shape[-1] > 4:
+                if v.shape[-1] < 3 or v.shape[-1] > 4 or base_pattern:
                     final_path = join(save_path, f'{self.stream_set}')
                     if not isdir(final_path):
                         os.makedirs(final_path)

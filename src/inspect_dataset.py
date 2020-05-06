@@ -5,11 +5,13 @@ from dataset.dataset import Dataset
 from dataset.files import TimeSeries, RefPattern, DTW
 from utils.specification import specs
 
-dataset = 'rational'
-base_pattern = False
+dataset = 'cbf'
+base_pattern = True
+pattern_name = 'D'
 rho = '0.100'
-dataset_name = dataset if not base_pattern else dataset+'_base'
 
+
+dataset_name = dataset if not base_pattern else dataset+'_base'
 length = specs[dataset_name]['x_dim']
 stream_id = 0
 
@@ -23,6 +25,8 @@ else:
 
 if base_pattern:
     ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
+    if len(pattern_name) > 0:
+        ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
 
 t = TimeSeries(
     f'../data/{dataset}/{stream_name}')
@@ -31,24 +35,28 @@ timeseries = t.timeseries
 ref = RefPattern(f'../data/{dataset}/{ref_name}')
 
 ref_ids = specs[dataset_name]['ref_id']
+if len(pattern_name) > 0:
+    ref_ids = range(len(pattern_name))
+
+if base_pattern:
+    rho_name = f'rho {rho}_base'
+    if len(pattern_name) > 0:
+        rho_name = f'rho {rho}_base_{pattern_name}'
+else:
+    rho_name = f'rho {rho}'
 
 dtws = []
 for idx, ref_id in enumerate(ref_ids):
-    if base_pattern:
-        dtw = DTW(ref, t, class_num=idx + 1, rho=f'{rho}',
-                  starting_path=f'../data/{dataset}/rho {rho}_base',
-                  ref_id=ref_id)
-    else:
-        dtw = DTW(ref, t, class_num=idx+1, rho=f'{rho}',
-                  starting_path=f'../data/{dataset}/rho {rho}',
-                  ref_id=ref_id)
+    dtw = DTW(ref, t, class_num=idx+1, rho=f'{rho}',
+              starting_path=f'../data/{dataset}/{rho_name}',
+              ref_id=ref_id)
     dtws.append(dtw)
 
 
 window_size = 25
 Dataset.image_creator(*dtws, window_size=window_size)
 
-fig = plt.figure(constrained_layout=False)
+fig = plt.figure(constrained_layout=True)
 gs = fig.add_gridspec(len(dtws)+1, 12)
 
 f_axi1 = fig.add_subplot(gs[0, 1:])
@@ -77,9 +85,10 @@ for idx, dtw in enumerate(dtws):
         f_axi_1.set_xlim(-val_max*2, val_max*2)
     f_axi_1.axis('off')
 
+    fig.colorbar(img, cmap='plasma', ax=f_axi)
 
-fig.subplots_adjust(right=0.9)
-cbar_ax = fig.add_axes([0.91, 0.12, 0.01, 0.64])
-fig.colorbar(img, cmap='plasma', cax=cbar_ax)
+# fig.subplots_adjust(right=0.90)
+# cbar_ax = fig.add_axes([0.91, 0.12, 0.01, 0.64])
+# fig.colorbar(img, cmap='plasma', cax=cbar_ax)
 
 plt.show()

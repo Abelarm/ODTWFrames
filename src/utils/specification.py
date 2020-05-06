@@ -36,7 +36,7 @@ specs = {
         'max_stream_id': [20, 5, 10],
         'repre_samples_25': ['X:0_1130-1155|Y:1.npy', 'X:0_330-355|Y:2.npy', 'X:0_1430-1455|Y:3.npy'],
         'repre_samples_15': ['X:0_1130-1145|Y:1.npy', 'X:0_330-345|Y:2.npy', 'X:0_1430-1445|Y:3.npy'],
-        'repre_samples_5':  ['X:0_1128-1133|Y:1.npy', 'X:0_349-355|Y:2.npy', 'X:0_1433-1438|Y:3.npy']
+        'repre_samples_5':  ['X:0_1128-1133|Y:1.npy', 'X:0_349-354|Y:2.npy', 'X:0_1433-1438|Y:3.npy']
     },
     'rational': {
         'y_dim': 4,
@@ -54,7 +54,9 @@ specs = {
         'ref_id': [0, 1, 2, 3, 4, 5, 6],
         'max_stream_id': [20, 5, 10],
         'repre_samples_5':  ['X:0_562-567|Y:1.npy', 'X:0_1133-1138|Y:2.npy', 'X:0_641-646|Y:3.npy',
-                             'X:0_241-246|Y:4.npy']
+                             'X:0_241-246|Y:4.npy'],
+        'repre_samples_25': ['X:0_560-585|Y:1.npy', 'X:0_1130-1155|Y:2.npy', 'X:0_640-665|Y:3.npy',
+                             'X:0_240-265|Y:4.npy'],
     },
     'synthetic_control': {
         'y_dim': 6,

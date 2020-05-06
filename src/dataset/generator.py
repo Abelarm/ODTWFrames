@@ -3,7 +3,10 @@ from os import path
 from dataset.dataset import Dataset
 
 
-def generate(beginning_path, rho, window_size, n_classes, max_stream_id, base_pattern=False):
+def generate(beginning_path, rho, window_size, n_classes, max_stream_id,
+             base_pattern=False,
+             pattern_name='',
+             path_class=None):
 
     length = 100
 
@@ -17,15 +20,14 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id, base_pa
 
     if base_pattern:
         ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
+        if len(pattern_name) > 0:
+            ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
 
-    save_path_image = f'{beginning_path}/rho {rho}/DTW_{window_size}'
-    dtw_starting_path = f'{beginning_path}/rho {rho}'
-    if base_pattern:
-        save_path_image = f'{beginning_path}/rho {rho}_base/DTW_{window_size}'
-        dtw_starting_path = f'{beginning_path}/rho {rho}_base'
+    save_path_image = path_class.get_data_path()
+    dtw_starting_path = path_class.get_dtw_path()
 
-    ds = Dataset(f'{beginning_path}{ref_name}',
-                 f'{beginning_path}{stream_name}-train_id-*.npy',
+    ds = Dataset(f'{beginning_path}/{ref_name}',
+                 f'{beginning_path}/{stream_name}-train_id-*.npy',
                  'train',
                  dtw_starting_path,
                  rho,
@@ -39,8 +41,8 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id, base_pa
         print('====== CREATING SERIES DATASET ====== ')
         ds.create_series_dataset(f'{beginning_path}/TS_{window_size}/train')
 
-    ds = Dataset(f'{beginning_path}{ref_name}',
-                 f'{beginning_path}{stream_name}-validation_id-*.npy',
+    ds = Dataset(f'{beginning_path}/{ref_name}',
+                 f'{beginning_path}/{stream_name}-validation_id-*.npy',
                  'validation',
                  dtw_starting_path,
                  rho,
@@ -56,8 +58,8 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id, base_pa
 
     if 'gunpoint' in beginning_path:
         stream_name = 'STREAM_cycles-per-label-20_set'
-    ds = Dataset(f'{beginning_path}{ref_name}',
-                 f'{beginning_path}{stream_name}-test_id-*.npy',
+    ds = Dataset(f'{beginning_path}/{ref_name}',
+                 f'{beginning_path}/{stream_name}-test_id-*.npy',
                  'test',
                  dtw_starting_path,
                  rho,

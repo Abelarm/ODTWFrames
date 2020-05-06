@@ -12,16 +12,21 @@ from utils.specification import specs
 
 core_path = '../data'
 
-dataset = 'rational'
+dataset = 'cbf'
 base_pattern = True
 dataset_name = dataset if not base_pattern else dataset+'_base'
 
 rho = '0.100'
 window_size = 5
+pattern_name = 'ABC'
+
 rho_name = 'rho '
 rho_name += rho if not base_pattern else rho+'_base'
+rho_name += f'_{pattern_name}' if len(pattern_name) > 0 else ''
 
 channels = specs[dataset_name]['channels']
+if len(pattern_name) > 0:
+    channels = len(pattern_name.split('_'))
 length = specs[dataset_name]['x_dim']
 
 if 2 < channels < 5:
@@ -54,9 +59,9 @@ else:
     class_idx = -5
 
 if base_pattern:
-    interval = [1133, 1138]
+    interval = [1129, 1134]
     ts_id = 0
-    class_id = 2
+    class_id = 1
 else:
     interval = []
     ts_id = 0
@@ -92,6 +97,8 @@ else:
 
 if base_pattern:
     ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
+    if len(pattern_name) > 0:
+        ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
 
 ref = RefPattern(f'../data/{dataset}/{ref_name}')
 t = TimeSeries(
@@ -108,6 +115,9 @@ f_axi_0.axvline(x=interval[1], linewidth=2, color='r')
 f_axi_0.axis(xmin=interval[0]-75, xmax=interval[1]+75)
 
 ref_ids = specs[dataset_name]['ref_id']
+if len(pattern_name) > 0:
+    ref_ids = range(len(pattern_name.split('_')))
+
 for i, c in enumerate(ref_ids):
 
     f_axi_1 = fig.add_subplot(gs[1, i])

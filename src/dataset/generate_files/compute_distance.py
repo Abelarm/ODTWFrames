@@ -97,6 +97,7 @@ def compute_odtw_distance_matrix(ref, stream, rho):
 # ! ------------------------------------------------------------------------------------------- GLOBAL PARAMETERS
 pattern = 'cbf'  # database name
 sub_pattern = True
+sub_pattern_names = 'ABE'
 length = 100  # length of the reference patterns
 noise_level = 5  # std white noise (rate)
 warp_level, shift_level = 10, 10
@@ -114,6 +115,8 @@ folder_name = f'/{pattern}'
 sub_folder = f'/rho {rho:.3f}'
 if sub_pattern:
     sub_folder += '_base'
+if len(sub_pattern_names) > 0:
+    sub_folder += f'_{sub_pattern_names}'
 
 if pattern == 'gunpoint':
     num = 5
@@ -127,7 +130,10 @@ else:
               (length, noise_level, warp_level, shift_level, patterns_in_ref)
 
 if sub_pattern:
-    fileREF = f'/BASE_REF_len-{length}_noise-5_num-1.npy'
+    if len(sub_pattern_names) > 0:
+        fileREF = f'/BASE_REF_len-{length}_noise-5_num-1_{sub_pattern_names}.npy'
+    else:
+        fileREF = f'/BASE_REF_len-{length}_noise-5_num-1.npy'
 
     # *                                                     odtw core file names
 

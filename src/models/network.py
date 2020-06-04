@@ -72,6 +72,7 @@ class Network:
             self.test_generator, \
             self.test_generator_analysis = generator_function(self.root_dir, self.x_dim, self.y_dim,
                                                               base_pattern=self.base_pattern,
+                                                              always_custom=True,
                                                               **self.parameters)
 
         self.model = model_function(self.x_dim, self.y_dim)
@@ -117,7 +118,7 @@ class Network:
         lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1),
                                        cooldown=5,
                                        patience=5,
-                                       min_lr=0.5e-7)
+                                       min_lr=5e-7)
 
         callbacks_list = [checkpoint, lr_reducer]
 
@@ -214,6 +215,10 @@ class Network:
         rho_name = self.path_class.get_rho_name()
         model_name = self.path_class.get_model_name()
         save_dir = self.path_class.get_summaries_path()
+
+        if 'RNN' in self.model_name:
+            save_dir += '_RNN'
+
         makedirs(save_dir, exist_ok=True)
 
         self.target_names = [str(i) for i in range(self.y_dim)]

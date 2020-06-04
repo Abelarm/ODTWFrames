@@ -6,7 +6,7 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.ResNet1D.model import get_model, optimizer
 
-dataset = 'cbf'
+dataset = 'gunpoint'
 dataset_type = 'TS'
 window_size = 5
 
@@ -33,7 +33,7 @@ experiment = Experiment(api_key="tIjRDRXwqoq2RgkME4epGXp1C",
 
 NN = Network(data_path,
              x_dim=(window_size, 1), y_dim=y_dim,
-             model_name=f'DTW_CNN_{window_size}.hdf5', experiment=experiment)
+             model_name=f'TS_ResNet_{window_size}.hdf5', experiment=experiment)
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
 # NN.train(epochs=1, save_path=weight_dir, from_checkpoint=False)

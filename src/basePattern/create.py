@@ -99,11 +99,31 @@ class BasePattern:
 
         self._mean()  # A
         self._increase()  # B
-        # self._one_peak()  # C
+        self._one_peak()  # C
         # self._two_peak()
         # self._one_step()
-        # self._multiple_steps()   # D
+        self._multiple_steps()   # D
         self._teeth()  # E
+
+    def plot_patterns(self):
+
+        fig = plt.figure(constrained_layout=True)
+        gs = fig.add_gridspec(1, len(self.values))
+        colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
+
+        for i, k in enumerate(self.values):
+            v = self.values[k]
+
+            f_axi1 = fig.add_subplot(gs[0, i])
+            f_axi1.plot(v, color=colors[i])
+            # f_axi1.axis('equal', ymin=min(v), ymax=max(v))
+            f_axi1.axes.get_yaxis().set_visible(False)
+            f_axi1.axes.get_xaxis().set_visible(False)
+            f_axi1.set_title(f'Universal Pattern: {self.pattern_names[i]}')
+            if i == 0:
+                f_axi1.axis(ymin=self.min_value, ymax=self.max_value)
+
+        plt.show()
 
     def save(self, save_path):
 
@@ -119,8 +139,10 @@ class BasePattern:
         plt.legend()
         plt.show()
 
-        if len(to_save) > 4:
+        if len(to_save) > 5:
             self.pattern_names = ''
+        if self.pattern_names == 'ABCDE':
+            self.pattern_names = 'FULL'
         if len(self.pattern_names) > 0:
             filename = f'BASE_REF_len-{self.length}_noise-{self.noise_val}_num-1_{self.pattern_names}'
         else:
@@ -150,4 +172,5 @@ len_ref = ref.lab_patterns[0]['pattern'].shape[0]
 base = BasePattern(len_ref, timeseries.min(), timeseries.max())
 base.compute_pattern()
 
+# base.plot_patterns()
 base.save(f'../../data/{dataset}')

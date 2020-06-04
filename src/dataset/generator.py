@@ -3,7 +3,8 @@ from os import path
 from dataset.dataset import Dataset
 
 
-def generate(beginning_path, rho, window_size, n_classes, max_stream_id,
+def generate(mat_type, beginning_path, rho, window_size, n_classes,
+             max_stream_id,
              base_pattern=False,
              pattern_name='',
              path_class=None):
@@ -12,7 +13,7 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id,
 
     if 'gunpoint' in beginning_path:
         ref_name = 'REF_num-5.npy'
-        stream_name = 'STREAM_cycles-per-label-20_set'
+        stream_name = 'STREAM_cycles-per-label-10_set'
         length = 150
     else:
         stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set'
@@ -26,7 +27,8 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id,
     save_path_image = path_class.get_data_path()
     dtw_starting_path = path_class.get_dtw_path()
 
-    ds = Dataset(f'{beginning_path}/{ref_name}',
+    ds = Dataset(mat_type,
+                 f'{beginning_path}/{ref_name}',
                  f'{beginning_path}/{stream_name}-train_id-*.npy',
                  'train',
                  dtw_starting_path,
@@ -41,7 +43,8 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id,
         print('====== CREATING SERIES DATASET ====== ')
         ds.create_series_dataset(f'{beginning_path}/TS_{window_size}/train')
 
-    ds = Dataset(f'{beginning_path}/{ref_name}',
+    ds = Dataset(mat_type,
+                 f'{beginning_path}/{ref_name}',
                  f'{beginning_path}/{stream_name}-validation_id-*.npy',
                  'validation',
                  dtw_starting_path,
@@ -58,7 +61,8 @@ def generate(beginning_path, rho, window_size, n_classes, max_stream_id,
 
     if 'gunpoint' in beginning_path:
         stream_name = 'STREAM_cycles-per-label-20_set'
-    ds = Dataset(f'{beginning_path}/{ref_name}',
+    ds = Dataset(mat_type,
+                 f'{beginning_path}/{ref_name}',
                  f'{beginning_path}/{stream_name}-test_id-*.npy',
                  'test',
                  dtw_starting_path,

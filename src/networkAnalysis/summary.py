@@ -1,11 +1,7 @@
 import operator
-import re
 from collections import Counter
 from glob import glob
 from os.path import join
-from random import choice
-
-from utils.specification import specs
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -79,22 +75,22 @@ def plot_roc_auc(n_classes, y_true, y_pred, save_dir):
 
         # Plot all ROC curves
         plt.plot(fpr["micro"], tpr["micro"],
-                 label=f"micro-average ROC curve (area = {roc_auc['micro']:0.2f})",
+                 label=f"micro-average ROC curve (area = {roc_auc['micro']:0.4f})",
                  color='deeppink', linestyle=':', linewidth=4)
 
         plt.plot(fpr["macro"], tpr["macro"],
-                 label=f"micro-average ROC curve (area = {roc_auc['macro']:0.2f})",
+                 label=f"macro-average ROC curve (area = {roc_auc['macro']:0.4f})",
                  color='navy', linestyle=':', linewidth=4)
 
         for i in range(n_classes):
             plt.plot(fpr[i], tpr[i], lw=2,
-                     label=f"ROC curve of class {i} (area = {roc_auc[i]:0.2f})")
+                     label=f"ROC curve of class {i} (area = {roc_auc[i]:0.4f})")
         plt.title('Some extension of Receiver operating characteristic to multi-class')
     else:
         selected_class = 1
         fpr, tpr, _ = roc_curve(y_true[:, selected_class], y_pred[:, selected_class])
         auc_area = auc(fpr, tpr)
-        plt.plot(fpr, tpr, label=f'ROC curve calculated on class {selected_class} (area = {auc_area:0.2f})')
+        plt.plot(fpr, tpr, label=f'ROC curve calculated on class {selected_class} (area = {auc_area:0.4f})')
 
         plt.title('Receiver operating two-class')
 
@@ -134,31 +130,18 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
 
 def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred, save_dir):
 
+    ts_id = 0
+
     file_name = f'{core_path}/data/{dataset_name}/' \
                 f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
-                f'-test_id-*.npy'
+                f'-test_id-{ts_id}.npy'
 
     if dataset_name == 'gunpoint':
         file_name = f'{core_path}/data/{dataset_name}/' \
-                    f'STREAM_cycles-per-label-20_set-test_id-*.npy'
-
-    file_list = glob(file_name)
-
-    if rho_name and '_base' in dataset_name:
-        ds_name = dataset_name if '_base' not in rho_name else dataset_name + '_base'
-        max_stream_id_test = specs[ds_name]['max_stream_id'][-1]
-        # select random stream that is within the calculated dtw
-        while True:
-            t_name = choice(file_list)
-            ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
-            if int(ts_id) < max_stream_id_test:
-                break
-    else:
-        t_name = choice(file_list)
-        ts_id = re.search('test_id-(.*).npy', t_name, re.IGNORECASE).group(1)
+                    f'STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
 
     print(f'Selected STREAM_ID: {ts_id}')
-    t = TimeSeries(t_name)
+    t = TimeSeries(file_name)
     timeseries = t.timeseries
     labels = t.labels
 

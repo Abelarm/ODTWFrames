@@ -8,7 +8,7 @@ import numpy as np
 from PIL import Image
 from tqdm import tqdm
 
-from dataset.files import RefPattern, TimeSeries, DTW
+from dataset.files import RefPattern, TimeSeries, DTW, RP
 
 
 class Dataset:
@@ -19,8 +19,10 @@ class Dataset:
     rho = None
     window_size = None
     classes = None
+    always_custom = True
 
-    def __init__(self, ref_path, stream_path, stream_set, starting_path, rho, window_size, classes, max_id):
+    def __init__(self, mat_type, ref_path, stream_path, stream_set, starting_path, rho, window_size, classes, max_id):
+        self.mat_type = mat_type
         self.ref_path = ref_path
         self.stream_path = stream_path
 
@@ -36,11 +38,16 @@ class Dataset:
 
     def create_image_dataset(self, save_path, ref_ids=None, base_pattern=False):
 
+        if self.mat_type == 'DTW':
+            image_class = DTW
+        elif self.mat_type == 'RP':
+            image_class = RP
+
         if not ref_ids:
             selected_ids = []
 
         for stream in tqdm(glob(self.stream_path)):
-            dtws_tmp = []
+            images_tmp = []
             print(f'\n==== Computing images for file {stream} ====\n')
             id_path = stream.split('_id-')[1].split('.npy')[0]
 
@@ -54,29 +61,30 @@ class Dataset:
                 channel_iterator = [int(x['label']) for x in self.reference.lab_patterns]
             if ref_ids:
                 for c, ref_id in zip(channel_iterator, ref_ids):
-                    dtws_tmp.append(DTW(self.reference,
-                                        t,
-                                        class_num=c,
-                                        rho=self.rho,
-                                        starting_path=self.starting_path,
-                                        ref_id=ref_id))
+                    images_tmp.append(image_class(self.reference,
+                                                  t,
+                                                  class_num=c,
+                                                  rho=self.rho,
+                                                  starting_path=self.starting_path,
+                                                  ref_id=ref_id))
             else:
                 for c in channel_iterator:
-                    dtw_tmp = DTW(self.reference,
-                                  t,
-                                  class_num=c,
-                                  rho=self.rho,
-                                  starting_path=self.starting_path)
-                    dtws_tmp.append(dtw_tmp)
+                    image_tmp = image_class(self.reference,
+                                            t,
+                                            class_num=c,
+                                            rho=self.rho,
+                                            starting_path=self.starting_path)
+                    images_tmp.append(image_tmp)
 
-                    if dtw_tmp.selected not in selected_ids:
-                        selected_ids.append(dtw_tmp.selected)
+                    if image_tmp.selected not in selected_ids:
+                        selected_ids.append(image_tmp.selected)
 
-            images, labels = self.image_creator(*dtws_tmp, window_size=self.window_size)
+            images, labels = self.image_creator(*images_tmp, window_size=self.window_size)
 
             for i, (v, l) in enumerate(zip(images, labels)):
 
-                if v.shape[-1] < 3 or v.shape[-1] > 4 or base_pattern:
+                # v.shape[-1] < 3 or v.shape[-1] > 4 or base_pattern ALWAYS USING CUSTOM DataGenerator
+                if v.shape[-1] < 3 or v.shape[-1] > 4 or base_pattern or self.always_custom:
                     final_path = join(save_path, f'{self.stream_set}')
                     if not isdir(final_path):
                         os.makedirs(final_path)
@@ -163,11 +171,11 @@ class Dataset:
                 np.save(join(final_path, f'X:{id_path}_{i}-{i + len_size}|Y:{int(max_val[0])}'), rescaled)
 
     @staticmethod
-    def image_creator(*dtws, window_size=25):
+    def image_creator(*imgs_mat, window_size=25):
 
         imgs, labels = [], []
-        for dtw in dtws:
-            i, l = dtw.images(window_size)
+        for img in imgs_mat:
+            i, l = img.images(window_size)
             imgs.append(i)
             labels.append(l)
 

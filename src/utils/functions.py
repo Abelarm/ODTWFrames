@@ -1,4 +1,5 @@
 import re
+from weakref import WeakValueDictionary
 
 
 def get_id_interval(filename):
@@ -22,11 +23,14 @@ def get_id_interval(filename):
 
 
 class Singleton(type):
-    _instances = {}
+    _instances = WeakValueDictionary()
 
     def __call__(cls, *args, **kwargs):
         if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+            # This variable declaration is required to force a
+            # strong reference on the instance.
+            instance = super(Singleton, cls).__call__(*args, **kwargs)
+            cls._instances[cls] = instance
         return cls._instances[cls]
 
 
@@ -58,12 +62,14 @@ class Paths(metaclass=Singleton):
 
     def get_rho_name(self):
 
-        if self.rho:
+        if self.rho and self.dataset_type != 'RP':
             rho_name = f'rho {self.rho}'
             if self.base_pattern:
                 rho_name += '_base'
             if self.pattern_name:
                 rho_name += f'_{self.pattern_name}'
+        elif self.dataset_type == 'RP':
+            rho_name = 'RP'
         else:
             rho_name = ''
 

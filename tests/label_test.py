@@ -4,16 +4,25 @@ from collections import Counter
 from glob import glob
 from os.path import join
 
-from dataset.files import TimeSeries
-from utils.specification import specs
-
+from PIL import Image
 import numpy as np
 
-core_path = '../data'
+from dataset.files import TimeSeries
+from utils.functions import Paths
+from utils.specification import specs
 
-dataset = 'rational'
-base_pattern = True
+dataset_type = 'RP'
+dataset = 'cbf'
+base_pattern = False
 dataset_name = dataset if not base_pattern else dataset+'_base'
+
+rho = '0.100'
+window_size = 5
+rho_name = 'rho '
+pattern_name = ''
+rho_name += rho if not base_pattern else rho+'_base'
+always_custom = True
+
 
 if dataset == 'gunpoint':
     ref_name = 'REF_num-5.npy'
@@ -25,12 +34,11 @@ else:
     ref_name = 'REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy'
     stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-*.npy'
 
-rho = '0.100'
-window_size = 5
-rho_name = 'rho '
-rho_name += rho if not base_pattern else rho+'_base'
 
-for files in glob(join(core_path, dataset, stream_name)):
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
+beginning_path = paths.get_beginning_path()
+
+for files in glob(join(beginning_path, stream_name)):
     t = TimeSeries(files)
     ts_id = t.get_properties()['id']
     if int(ts_id) > 9:
@@ -40,7 +48,7 @@ for files in glob(join(core_path, dataset, stream_name)):
 
     num_channels = specs[dataset_name]['channels']
     length = specs[dataset_name]['x_dim']
-    if 2 < num_channels < 5:
+    if 2 < num_channels < 5 and not always_custom:
         final_string = f'*/{ts_id}_*'
         interval_exp = rf'{ts_id}_(.+)\.'
         class_exp = rf'test\/(.+)\/{ts_id}'
@@ -49,7 +57,7 @@ for files in glob(join(core_path, dataset, stream_name)):
         interval_exp = rf'X:{ts_id}_(.*)\|'
         class_exp = r'Y:(.+)\.'
 
-    training_files = glob(join(core_path, dataset, rho_name, f'DTW_{window_size}', 'test', final_string))
+    training_files = glob(join(paths.get_data_path(), 'test', final_string))
     assert len(training_files) > 0
     print(f"Found: {len(training_files)} files")
     for t_f in training_files:
@@ -66,14 +74,25 @@ for files in glob(join(core_path, dataset, stream_name)):
 
         assert real_class == calc_class
 
-        loaded_x = np.load(t_f)
+        if '.png' in t_f:
+            loaded_x = Image.open(t_f)
+            loaded_x = np.array(loaded_x.getdata())
+            loaded_x = loaded_x.reshape(specs[dataset_name]['x_dim'], window_size, -1)
+        else:
+            loaded_x = np.load(t_f)
         print(f'Checking the dtwMat file of STREAM file {t_f}')
-        for c in range(loaded_x.shape[-1]):
+        chan = 0
+        for c in specs[dataset_name]['ref_id']:
 
-            dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-' \
-                       f'0_rho-0.100_ref-id-{c}_stream-id-{ts_id}.npy'
+            if dataset_type == 'RP':
+                dtw_path = f'rpMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-0' \
+                           f'_ref-id-{c}_stream-id-{ts_id}.npy'
+            else:
+                dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-0' \
+                           f'_rho-0.100_ref-id-{c}_stream-id-{ts_id}.npy'
 
-            loaded_dtw = np.load(join(core_path, dataset, rho_name, dtw_path))
+            loaded_dtw = np.load(join(paths.get_dtw_path(), dtw_path))
             sliced_dtw = loaded_dtw[:, interval[0]:interval[1]]
 
-            assert (loaded_x[:, :, c] == sliced_dtw).all()
+            assert (loaded_x[:, :, chan] == sliced_dtw).all()
+            chan += 1

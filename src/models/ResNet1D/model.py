@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adam
 
 
 def get_model(x_dim, y_dim):
-    n_feature_maps = 64
+    n_feature_maps = 32
 
     input_layer = Input(x_dim)
     # BLOCK 1

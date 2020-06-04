@@ -1,4 +1,14 @@
+import os
+
 from comet_ml import Experiment
+import tensorflow as tf
+import numpy as np
+import random
+
+os.environ['PYTHONHASHSEED'] = str(42)
+tf.random.set_seed(42)
+np.random.seed(42)
+random.seed(42)
 
 from utils.functions import Paths
 from utils.specification import specs
@@ -38,9 +48,9 @@ NN = Network(data_path,
              model_name=f'TS_ResNet_{window_size}.hdf5', experiment=experiment)
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
-NN.train(epochs=100, save_path=weight_dir, from_checkpoint=False)
+NN.train(epochs=100, save_path=weight_dir)
 NN.evaluate(weights_dir=weight_dir)
-NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
-NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
+# NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
+# NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
 
 experiment.end()

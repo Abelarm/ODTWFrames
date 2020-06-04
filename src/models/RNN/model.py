@@ -1,15 +1,20 @@
 from tensorflow.keras import Sequential
-from tensorflow.keras.layers import Dense, GRU
+from tensorflow.keras.layers import Dense, LSTM, BatchNormalization
 from tensorflow. keras.optimizers import Adam
+from tensorflow_core.python.keras.regularizers import l2
 
 
 def get_model(x_dim, y_dim):
 
     model = Sequential([
-        GRU(input_shape=x_dim, units=32, dropout=0.2, recurrent_dropout=0.2,
-            return_sequences=True),
-        GRU(units=64, dropout=0.2, recurrent_dropout=0.35),
-        Dense(128, activation='relu'),
+        LSTM(input_shape=x_dim, units=32, dropout=0.2, recurrent_dropout=0.2,
+             return_sequences=True),
+        BatchNormalization(momentum=0.999, epsilon=0.01),
+        LSTM(units=64, dropout=0.2, recurrent_dropout=0.35),
+        BatchNormalization(momentum=0.999, epsilon=0.01),
+        Dense(128, activation='relu',
+              kernel_initializer="he_normal",
+              kernel_regularizer=l2(0.01)),
         Dense(y_dim, activation='softmax')
     ])
 

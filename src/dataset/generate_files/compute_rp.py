@@ -1,14 +1,9 @@
-"""
-Compute distance matrix for experimentation.
-13-11-2019 :: Izaskun Oregui
-"""
-
-import numpy as np
 import os
 
-from dataset.generate_files.DataGenerator.utils import compute_classpercentages
-from dataset.generate_files.OEMbatch import OEM_batch
+import numpy as np
+from scipy.spatial.distance import cdist
 
+from dataset.generate_files.DataGenerator.utils import compute_classpercentages
 
 def refMedoids(dataPath):
     """
@@ -73,37 +68,16 @@ def _dtw(x, y):
     return RS[-1, -1]
 
 
-def compute_odtw_distance_matrix(ref, stream, rho):
-    """
-    Compute distance matrix.
-    :param refmat: reference pattern
-    :param stream: stream time series
-    :param rho: memory
-    :return: distance matrices
-    """
-
-    print('Computing ODTW distance matrix')
-
-    distMat = np.zeros((ref.size, stream.size))
-    odtw = OEM_batch(ref, rho)
-    distMat[:, :3] = odtw.init_dist(stream[:3])
-
-    for point in range(3, stream.size):
-        distMat[:, point] = odtw.update_dist([stream[point]])
-
-    return distMat
-
-
 # ! ------------------------------------------------------------------------------------------- GLOBAL PARAMETERS
-pattern = 'gunpoint'  # database name
-sub_pattern = True
-sub_pattern_names = 'FULL'
+pattern = 'rational'  # database name
+dataset_type = 'RP'
+sub_pattern = False
+sub_pattern_names = ''
 length = 100  # length of the reference patterns
 noise_level = 5  # std white noise (rate)
 warp_level, shift_level = 10, 10
 cycles_in_stream = 10  # number of patterns per label in the stream
 patterns_in_ref = 10  # number of  pattern per label in the reference set
-rho = 0.100  # memory parameter
 
 # stream type
 sets_list = ['train', 'validation', 'test']  # streaming sets
@@ -111,8 +85,9 @@ num_streams_set = [20, 5, 10]  # number of streams in each set
 
 # *                                                     data folders and files
 core_path = '../../../data'
-folder_name = f'/{pattern}'
-sub_folder = f'/rho {rho:.3f}'
+folder_name = f'{pattern}'
+sub_folder = dataset_type
+
 if sub_pattern:
     sub_folder += '_base'
 if len(sub_pattern_names) > 0:
@@ -121,29 +96,23 @@ if len(sub_pattern_names) > 0:
 if pattern == 'gunpoint':
     num = 5
     length = 150
-    fileREF = f'/REF_num-{num}.npy'
-    fileSTREAM = f'/STREAM_cycles-per-label-{cycles_in_stream}'
+    fileREF = f'REF_num-{num}.npy'
+    fileSTREAM = f'STREAM_cycles-per-label-{cycles_in_stream}'
 else:
-    fileSTREAM = '/STREAM_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_cycles-per-label-%d' % \
-                 (length, noise_level, warp_level, shift_level, cycles_in_stream)
-    fileREF = '/REF_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_num-%d.npy' % \
-              (length, noise_level, warp_level, shift_level, patterns_in_ref)
+
+    fileSTREAM = f'STREAM_length-{length}_noise-{noise_level}_warp-{warp_level}_shift-{shift_level}'\
+                 f'_outliers-0_cycles-per-label-{cycles_in_stream}'
+
+    fileREF = f'REF_length-{length}_noise-{noise_level}_warp-{warp_level}_shift-{shift_level}'\
+              f'_outliers-0_num-{patterns_in_ref}.npy'
+
 
 if sub_pattern:
     if len(sub_pattern_names) > 0:
-        fileREF = f'/BASE_REF_len-{length}_noise-5_num-1_{sub_pattern_names}.npy'
+        fileREF = f'BASE_REF_len-{length}_noise-5_num-1_{sub_pattern_names}.npy'
     else:
-        fileREF = f'/BASE_REF_len-{length}_noise-5_num-1.npy'
+        fileREF = f'BASE_REF_len-{length}_noise-5_num-1.npy'
 
-    # *                                                     odtw core file names
-
-    # these folders  finish: _ref-id-%d_stream-id-%d.npy
-    fileODTWtrain = '/dtwMat-train_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_rho-%.3f' % \
-                    (length, noise_level, warp_level, shift_level, rho)
-    fileODTWval = '/dtwMat-validation_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_rho-%.3f' % \
-                  (length, noise_level, warp_level, shift_level, rho)
-    fileODTWtest = '/dtwMat-test_length-%d_noise-%d_warp-%d_shift-%d_outliers-0_rho-%.3f' % \
-                   (length, noise_level, warp_level, shift_level, rho)
 
 # ! --------------------------------------------------------------------------------------------- INITIALIZATION
 classpercentages = compute_classpercentages(pattern)
@@ -153,50 +122,53 @@ num_ref_patterns = patterns_in_ref * numLabels
 
 seed_ref = 123 + sum([ord(char) for char in pattern])
 seed_stream = 456 + sum([ord(char) for char in pattern])
-if not os.path.isdir(core_path + folder_name):
-    print('creating directory : ' + core_path + folder_name)
-    os.makedirs(core_path + folder_name)
+if not os.path.isdir(os.path.join(core_path, folder_name)):
+    print('creating directory : ' + os.path.join(core_path, folder_name))
+    os.makedirs(os.path.join(core_path, folder_name))
 
-if not os.path.isdir(core_path + folder_name + sub_folder):
-    print('creating directory : ' + core_path + folder_name + sub_folder)
-    os.makedirs(core_path + folder_name + sub_folder)
+if not os.path.isdir(os.path.join(core_path, folder_name, sub_folder)):
+    print('creating directory : ' + os.path.join(core_path, folder_name, sub_folder))
+    os.makedirs(os.path.join(core_path, folder_name, sub_folder))
 
 # ! --------------------------------------------------------------------------------------------- COMPUTE DTW
 
 # ------------------------------- reference patterns load data
-REF = np.load(core_path + folder_name + fileREF)
+REF = np.load(os.path.join(core_path, folder_name, fileREF))
 labelsREF = REF[:, 0]
 REF = REF[:, 1:]
 
 for s in range(len(sets_list)):
-    print('SET :: %s' % sets_list[s])
+    print(f'SET :: {sets_list[s]}')
     if sets_list[s] in ['validation', 'train', 'test']:
-        refIDs = refMedoids(core_path + folder_name + fileREF)
+        refIDs = refMedoids(os.path.join(core_path, folder_name, fileREF))
     else:
         refIDs = np.arange(REF.shape[0], dtype=int)
     for j in range(num_streams_set[s]):
         # ------------------------------- load streams
         if sets_list[s] == 'test' and pattern == 'gunpoint':
             cycles_in_stream_test = 20
-            fileSTREAM = f'/STREAM_cycles-per-label-{cycles_in_stream_test}'
-        file = '%s_set-%s_id-%d.npy' % (fileSTREAM, sets_list[s], j)
-        STREAM = np.load(core_path + folder_name + file)
+            fileSTREAM = f'STREAM_cycles-per-label-{cycles_in_stream_test}'
+
+        file = f'{fileSTREAM}_set-{sets_list[s]}_id-{j}.npy'
+        STREAM = np.load(os.path.join(core_path, folder_name, file))
         labelsSTREAM = STREAM[:, 1]
         STREAM = STREAM[:, 0]
         print(np.shape(STREAM))
 
         for r in refIDs:
             if pattern in ['cbf', 'two_patterns2', 'two_patterns', 'rational', 'synthetic_control']:
-                fileODTW = sub_folder + '/dtwMat-%s_length-%d_noise-%d_warp-%d_shift-%d' \
-                                        '_outliers-0_rho-%.3f_ref-id-%d_stream-id-%d.npy' \
-                           % (sets_list[s], length, noise_level, warp_level, shift_level, rho, r, j)
+                fileRP = os.path.join(sub_folder,
+                                      f'rpMat-{sets_list[s]}_length-{length}_noise-{noise_level}_warp-{warp_level}'
+                                      f'_shift-{shift_level}_outliers-0_ref-id-{r}_stream-id-{j}.npy')
             else:
-                fileODTW = sub_folder + '/dtwMat-%s_rho-%.3f_ref-id-%d_stream-id-%d.npy' \
-                           % (sets_list[s], rho, r, j)
-            if os.path.isfile(core_path + folder_name + fileODTW) is False:
-                print('Computing ODTW between (ref, stream_id) = (%d, %d)' % (r, j))
-                distMat = compute_odtw_distance_matrix(
-                    REF[r, :], STREAM, rho ** (1.0 / length))
-                np.save(core_path + folder_name + fileODTW, distMat)
+                fileRP = os.path.join(sub_folder,
+                                      f'rpMat-{sets_list[s]}_ref-id-{r}_stream-id-{j}.npy')
+
+            if os.path.isfile(os.path.join(core_path, folder_name, fileRP)) is False:
+                print(f'Computing Recurrence Plot between (ref, stream_id) = ({r}, {j})')
+                ref_arr = REF[r, :].reshape((-1, 1))
+                stream_arr = STREAM.reshape((-1, 1))
+                distMat = cdist(ref_arr, stream_arr)
+                np.save(os.path.join(core_path, folder_name, fileRP), distMat)
             else:
-                print('ODTW between (ref, stream_id) = (%d, %d) COMPUTED' % (r, j))
+                print(f'Computing Recurrence Plot between (ref, stream_id) = ({r}, {j})')

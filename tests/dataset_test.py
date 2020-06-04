@@ -7,27 +7,36 @@ from keras_preprocessing.image import ImageDataGenerator
 
 from dataset.files import RefPattern, TimeSeries
 from models.dataGenerator import DataGenerator
-from utils.functions import get_id_interval
+from utils.functions import get_id_interval, Paths
 from utils.specification import specs
 
-core_path = '../data'
 
 dataset = 'cbf'
-base_pattern = True
+dataset_type = 'RP'
+base_pattern = False
+pattern_name = ''
 dataset_name = dataset if not base_pattern else dataset+'_base'
 
 rho = '0.100'
 window_size = 5
-pattern_name = 'ABC'
+
 
 rho_name = 'rho '
 rho_name += rho if not base_pattern else rho+'_base'
 rho_name += f'_{pattern_name}' if len(pattern_name) > 0 else ''
+if dataset_type == 'RP':
+    rho = ''
 
 channels = specs[dataset_name]['channels']
 if len(pattern_name) > 0:
     channels = len(pattern_name.split('_'))
 length = specs[dataset_name]['x_dim']
+
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
+
+data_path = paths.get_data_path()
+beginning_path = paths.get_beginning_path()
+
 
 if 2 < channels < 5:
     datagen = ImageDataGenerator(rescale=1./255,
@@ -35,7 +44,7 @@ if 2 < channels < 5:
                                  featurewise_std_normalization=False)
 
     train_generator = datagen.flow_from_directory(
-        directory=f'{core_path}/{dataset_name}/{rho_name}/DTW_{window_size}/test',
+        directory=f'{data_path}/test',
         target_size=(100, window_size),
         color_mode="rgb" if channels != 4 else "rgba",
         batch_size=1,
@@ -47,7 +56,7 @@ if 2 < channels < 5:
 
 else:
     x_dim = (specs[dataset_name]['x_dim'], window_size, channels)
-    train_generator = DataGenerator(f'{core_path}/{dataset}/{rho_name}/DTW_{window_size}/test',
+    train_generator = DataGenerator(f'{data_path}/test',
                                     dim=x_dim,
                                     n_classes=specs[dataset_name]['y_dim'],
                                     to_fit=True,
@@ -100,9 +109,8 @@ if base_pattern:
     if len(pattern_name) > 0:
         ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
 
-ref = RefPattern(f'../data/{dataset}/{ref_name}')
-t = TimeSeries(
-    f'../data/{dataset}/{stream_name}')
+ref = RefPattern(f'{beginning_path}/{ref_name}')
+t = TimeSeries(f'{beginning_path}/{stream_name}')
 timeseries = t.timeseries
 
 fig = plt.figure(constrained_layout=False)

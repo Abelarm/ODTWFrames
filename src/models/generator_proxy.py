@@ -5,9 +5,10 @@ from tqdm import tqdm
 from models.dataGenerator import DataGenerator
 
 
-def create_generator(root_dir, x_dim, y_dim, batch_size, preprocessing=True, reload_images=False, base_pattern=False):
+def create_generator(root_dir, x_dim, y_dim, batch_size,
+                     preprocessing=True, reload_images=False, base_pattern=False, always_custom=False):
 
-    if len(x_dim) < 3 or x_dim[2] > 4 or x_dim[2] < 3 or base_pattern:
+    if len(x_dim) < 3 or x_dim[2] > 4 or x_dim[2] < 3 or base_pattern or always_custom:
 
         train_generator = DataGenerator(f'{root_dir}/train',
                                         dim=x_dim,

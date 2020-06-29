@@ -244,10 +244,12 @@ class Network:
 
         plot_confusion_matrix(y_true, self.y_pred, self.target_names, save_dir)
 
+        window_size = 1 if 'multi' in rho_name else self.x_dim[1]
+
         if len(self.x_dim) > 2:
             # images
             plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     rho_name, model_name, self.x_dim[1], self.y_pred, save_dir)
+                                     rho_name, model_name, window_size, self.y_pred, save_dir)
         else:
             # timeseries
             plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,

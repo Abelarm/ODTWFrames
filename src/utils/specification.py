@@ -1,5 +1,7 @@
 cmap = 'bone_r'
 
+multi_rho = ['0.0001', '0.001', '0.01', '0.100', '0.500']
+
 specs = {
     'gunpoint': {
         'y_dim': 2,

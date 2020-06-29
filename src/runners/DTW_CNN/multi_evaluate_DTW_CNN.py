@@ -6,12 +6,12 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset_arr = ['gunpoint']
+dataset_arr = ['rational']
 dataset_type = 'DTW'
 rho_arr = ['0.100']
 window_size_arr = [5]
 base_pattern = True
-pattern_name_arr = ['A', 'B', 'C', 'D', 'E', 'AB', 'ABC', 'ABD', 'ABE', 'ADE', 'FULL']
+pattern_name_arr = ['A', 'B', 'AB']
 
 for dataset, rho, window_size, pattern_name in product(dataset_arr, rho_arr, window_size_arr, pattern_name_arr):
 

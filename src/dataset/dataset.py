@@ -9,6 +9,7 @@ from PIL import Image
 from tqdm import tqdm
 
 from dataset.files import RefPattern, TimeSeries, DTW, RP
+from utils.specification import multi_rho
 
 
 class Dataset:
@@ -59,27 +60,48 @@ class Dataset:
                 channel_iterator = self.classes
             else:
                 channel_iterator = [int(x['label']) for x in self.reference.lab_patterns]
+            prefix_path = self.starting_path.split('rho ')[0]
             if ref_ids:
                 for c, ref_id in zip(channel_iterator, ref_ids):
-                    images_tmp.append(image_class(self.reference,
-                                                  t,
-                                                  class_num=c,
-                                                  rho=self.rho,
-                                                  starting_path=self.starting_path,
-                                                  ref_id=ref_id))
+                    if self.rho == 'multi':
+                        rho_arr = multi_rho
+                        starting_path_arr = [f'{prefix_path}rho {rho}' for rho in rho_arr]
+                    else:
+                        rho_arr = [self.rho]
+                        starting_path_arr = [self.starting_path]
+                    for rho, starting_path in zip(rho_arr, starting_path_arr):
+                        images_tmp.append(image_class(self.reference,
+                                                      t,
+                                                      class_num=c,
+                                                      rho=rho,
+                                                      starting_path=starting_path,
+                                                      ref_id=ref_id))
+
             else:
+                prefix_path = self.starting_path.split('rho ')[0]
                 for c in channel_iterator:
-                    image_tmp = image_class(self.reference,
-                                            t,
-                                            class_num=c,
-                                            rho=self.rho,
-                                            starting_path=self.starting_path)
-                    images_tmp.append(image_tmp)
+                    if self.rho == 'multi':
+                        rho_arr = multi_rho
+                        starting_path_arr = [f'{prefix_path}rho {rho}' for rho in rho_arr]
+                    else:
+                        rho_arr = [self.rho]
+                        starting_path_arr = [self.starting_path]
+                    for rho, starting_path in zip(rho_arr, starting_path_arr):
+                        image_tmp = image_class(self.reference,
+                                                t,
+                                                class_num=c,
+                                                rho=rho,
+                                                starting_path=starting_path)
+                        images_tmp.append(image_tmp)
 
                     if image_tmp.selected not in selected_ids:
                         selected_ids.append(image_tmp.selected)
 
             images, labels = self.image_creator(*images_tmp, window_size=self.window_size)
+            if self.rho == 'multi':
+                img_shape = images.shape
+                images = images.reshape((img_shape[0], img_shape[1], len(channel_iterator), len(rho_arr)))
+                images = np.transpose(images, axes=(0, 1, 3, 2))
 
             for i, (v, l) in enumerate(zip(images, labels)):
 

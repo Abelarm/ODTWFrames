@@ -178,6 +178,8 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
         probabilities_value[i] = y_pred[index_file]
         prediction_value[i + window_size] = 1 if np.argmax(y_pred[index_file]) == (label - 1) else -1
 
+    np.save(join(save_dir, 'probabilities_value_not_shifted'), probabilities_value)
+
     fig = plt.figure(constrained_layout=False, dpi=dpi)
 
     plt.subplot(y_dim + 1, 1, 1)

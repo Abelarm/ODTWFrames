@@ -11,7 +11,7 @@ Python adaptation by Izaskun Oregui. 2018-11-30
 
 import sys
 import numpy as np
-from DataGenerator.generators import arma, synthetic_control, sines, kohlerlorenz, cbf, two_patterns, rational, seasonal, two_patterns2
+from dataset.generate_files.DataGenerator.generators import arma, synthetic_control, sines, kohlerlorenz, cbf, two_patterns, rational, seasonal, two_patterns2
 
 
 class sts_generator:

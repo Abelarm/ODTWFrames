@@ -18,15 +18,19 @@ num_sample = 15
 fig = plt.figure(figsize=(13, 5.25), dpi=100)
 
 plt.rcParams['font.family'] = "Gulasch", "Times", "Times New Roman", "serif"
-plt.rcParams['font.size'] = 22
+plt.rcParams['font.size'] = 14
 plt.rcParams['axes.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['axes.titlesize'] = plt.rcParams['font.size']
 plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
 plt.rcParams['xtick.labelsize'] = 0.5 * plt.rcParams['font.size']
 plt.rcParams['ytick.labelsize'] = 0.5 * plt.rcParams['font.size']
+# <<<<<<  ADD THIS IN  REMAING SCRIPTS use  r  before
+plt.rcParams['text.usetex'] = True
 
-gs = fig.add_gridspec(len(dataset_array), len(dataset_array)*2)
-gs.update(wspace=0.100, hspace=0.4)
+
+gs = fig.add_gridspec(len(dataset_array), len(dataset_array)*2,
+                      height_ratios=None, width_ratios=None)
+gs.update(wspace=0.100, hspace=0.2)
 
 # START PLOTTING
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
@@ -77,11 +81,12 @@ for idx, dataset in enumerate(dataset_array):
         f_axi1.axvspan(i*length, (i + 1)*length, facecolor=colors[label-1], alpha=0.2)
 
 
-legend_elements = []
-for i in range(4):
-    legend_elements.append(Patch(facecolor=colors[i], alpha=0.2,
-                           label=f'Class #{i+1}'))
-
-plt.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.10),
-           fancybox=False, shadow=True, ncol=4)
+# legend_elements = []
+# for i in range(4):
+#     legend_elements.append(Patch(facecolor=colors[i], alpha=0.2,
+#                            label=f'Class #{i+1}'))
+#
+# plt.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.10),
+#            fancybox=False, shadow=True, ncol=4)
+plt.subplots_adjust(left=0.01, right=0.99, top=0.97, bottom=0.03)
 plt.show()

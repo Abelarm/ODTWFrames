@@ -1,6 +1,8 @@
 import re
 from weakref import WeakValueDictionary
 
+from utils.specification import multi_rho
+
 
 def get_id_interval(filename):
     # print(filename)
@@ -62,23 +64,25 @@ class Paths(metaclass=Singleton):
 
     def get_rho_name(self):
 
-        if self.rho and self.dataset_type != 'RP':
+        rho_name = ''
+
+        if self.rho:
             rho_name = f'rho {self.rho}'
-            if self.base_pattern:
-                rho_name += '_base'
-            if self.pattern_name:
-                rho_name += f'_{self.pattern_name}'
-        elif self.dataset_type == 'RP':
+        if self.dataset_type == 'RP':
             rho_name = 'RP'
-        else:
-            rho_name = ''
+
+        if self.base_pattern:
+            rho_name += f'_base_{self.pattern_name}'
 
         self.rho_name = rho_name
         return rho_name
 
     def get_model_name(self):
-        self.model_name = f'{self.dataset_type}_{self.window_size}'
-        return f'{self.dataset_type}_{self.window_size}'
+        if 'multi' in self.rho_name:
+            self.model_name = f'{self.dataset_type}_{len(multi_rho)}'
+        else:
+            self.model_name = f'{self.dataset_type}_{self.window_size}'
+        return self.model_name
 
     def get_beginning_path(self):
 

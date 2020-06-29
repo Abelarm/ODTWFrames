@@ -34,11 +34,10 @@ if base_pattern:
     if len(pattern_name) > 0:
         ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
 
-t = TimeSeries(
-    f'../data/{dataset}/{stream_name}')
+t = TimeSeries(f'../../data/{dataset}/{stream_name}')
 timeseries = t.timeseries
 
-ref = RefPattern(f'../data/{dataset}/{ref_name}')
+ref = RefPattern(f'../../data/{dataset}/{ref_name}')
 
 ref_ids = specs[dataset_name]['ref_id']
 if pattern_name == 'FULL':
@@ -56,27 +55,29 @@ else:
 dtws = []
 for idx, ref_id in enumerate(ref_ids):
     dtw = DTW(ref, t, class_num=idx+1, rho=f'{rho}',
-              starting_path=f'../data/{dataset}/{rho_name}',
+              starting_path=f'../../data/{dataset}/{rho_name}',
               ref_id=ref_id)
     dtws.append(dtw)
 
 window_size = 25
 Dataset.image_creator(*dtws, window_size=window_size)
 
+total_len = len(timeseries)
+
 # START PLOTTING
 colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-
-total_len = len(timeseries)
 
 fig = plt.figure(figsize=(13, 5.25), dpi=100)
 
 plt.rcParams['font.family'] = "Gulasch", "Times", "Times New Roman", "serif"
-plt.rcParams['font.size'] = 22
+plt.rcParams['font.size'] = 14
 plt.rcParams['axes.labelsize'] = plt.rcParams['font.size']
 plt.rcParams['axes.titlesize'] = plt.rcParams['font.size']
 plt.rcParams['legend.fontsize'] = plt.rcParams['font.size']
 plt.rcParams['xtick.labelsize'] = 0.5 * plt.rcParams['font.size']
 plt.rcParams['ytick.labelsize'] = 0.5 * plt.rcParams['font.size']
+# <<<<<<  ADD THIS IN  REMAING SCRIPTS use  r  before
+plt.rcParams['text.usetex'] = True
 
 gs = fig.add_gridspec(len(dtws)+1, (len(dtws)+1)*2,
                       wspace=0.1, hspace=0.1,
@@ -86,6 +87,7 @@ f_axi1 = fig.add_subplot(gs[0, 1:])
 f_axi1.plot(timeseries[total_len-max_len:total_len], 'k', lw=1)
 f_axi1.axes.get_yaxis().set_visible(False)
 f_axi1.axes.get_xaxis().set_visible(False)
+f_axi1.set_xlim(0, max_len)
 
 for i in range(0, num_sample):
 
@@ -100,11 +102,16 @@ for i in range(0, num_sample):
 
 for idx, dtw in enumerate(dtws):
     # AXIS 2
-    f_axi = fig.add_subplot(gs[idx+1, 1:], sharex=f_axi1)
+    f_axi = fig.add_subplot(gs[idx+1, 1:])
     img = f_axi.imshow(dtw.img[:, total_len-max_len:total_len], cmap=cmap, origin='lower', aspect='auto')
+
+    f_axi.axes.get_xaxis().set_visible(False)
     f_axi.axes.get_yaxis().set_visible(False)
-    if idx != len(dtws)-1:
-        f_axi.axes.get_xaxis().set_visible(False)
+
+    if idx == len(dtws)-1:
+        f_axi.axes.get_xaxis().set_visible(True)
+        f_axi.axes.set_xlabel(r'Time')
+
 
     for i in range(0, max_len, length):
         if i != 0:
@@ -112,8 +119,7 @@ for idx, dtw in enumerate(dtws):
 
 
     # SUB AXIS 2,1
-    f_axi_1 = fig.add_subplot(gs[idx+1, 0
-                              ])
+    f_axi_1 = fig.add_subplot(gs[idx+1, 0])
     base = plt.gca().transData
     rot = transforms.Affine2D().rotate_deg(90)
     if base_pattern:
@@ -126,11 +132,20 @@ for idx, dtw in enumerate(dtws):
         val_max = ref.lab_patterns[dtw.from_pattern_idx+1]['pattern'].max()
         f_axi_1.set_xlim(-val_max, -val_min)
     f_axi_1.set_yticks([0, 100])
+    f_axi_1.set_xlim(-val_max, -val_min)
+    f_axi_1.set_xticks([])
     if idx != len(dtws)-1:
         f_axi_1.set_xticks([])
         f_axi_1.set_yticks([])
 
+    if idx == len(dtws)-1:
+        f_axi_1.axes.set_ylabel(r'Time')  # <<<<<<<< ADD THIS
+        f_axi_1.axes.set_xlabel(r'RTS')
+
+
     # fig.colorbar(img, cmap=cmap, ax=f_axi)
 
 figure_name = f'{dataset}_{"universal" if base_pattern else "real"}'
-plt.savefig(f'{figure_name}.png', dpi=fig.dpi, bbox_inches='tight', pad_inches=0.5)
+plt.subplots_adjust(left=0.028, right=0.99, top=0.97, bottom=0.04)
+plt.show()
+# plt.savefig(f'{figure_name}.png', dpi=fig.dpi, bbox_inches='tight', pad_inches=0.5)

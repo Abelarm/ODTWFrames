@@ -4,13 +4,14 @@ from matplotlib import transforms
 from dataset.dataset import Dataset
 from dataset.files import TimeSeries, RefPattern, DTW, RP
 from utils.functions import Paths
-from utils.specification import specs, cmap
+from utils.specification import specs, cmap, multi_rho
 
-dataset = 'rational'
+dataset = 'gunpoint'
 base_pattern = False
 pattern_name = ''
-rho = '0.100'
-dataset_type = 'RP'
+rho = 'multi'
+dataset_type = 'DTW'
+window_size = 1
 
 if pattern_name == 'FULL':
     ref_ids = range(5)
@@ -34,7 +35,7 @@ dataset_name = dataset if not base_pattern else dataset + '_base'
 length = specs[dataset_name]['x_dim']
 stream_id = 0
 
-paths = Paths(dataset, dataset_type, rho, 5, base_pattern, pattern_name, core_path='../')
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
 beginning_path = paths.get_beginning_path()
 data_path = paths.get_data_path()
 
@@ -60,13 +61,22 @@ ref_ids = specs[dataset_name]['ref_id']
 
 
 imgs = []
-for idx, ref_id in enumerate(ref_ids):
-    dtw = image_class(ref, t, class_num=idx + 1, rho=f'{rho}',
-                      starting_path=paths.get_dtw_path(),
-                      ref_id=ref_id)
-    imgs.append(dtw)
+prefix_path = beginning_path.split('rho ')[0]
+if rho == 'multi':
+    rho_arr = multi_rho
+    starting_path_arr = [f'{prefix_path}/rho {rho}' for rho in rho_arr]
+else:
+    rho_arr = [rho]
+    starting_path_arr = [beginning_path]
 
-window_size = 25
+for idx, ref_id in enumerate(ref_ids):
+    for rho, starting_path in zip(rho_arr, starting_path_arr):
+        dtw = image_class(ref, t, class_num=idx + 1, rho=f'{rho}',
+                          starting_path=starting_path,
+                          ref_id=ref_id)
+        imgs.append(dtw)
+
+
 Dataset.image_creator(*imgs, window_size=window_size)
 
 fig = plt.figure(constrained_layout=True)

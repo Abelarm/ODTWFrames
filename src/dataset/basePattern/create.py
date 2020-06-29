@@ -21,6 +21,14 @@ class BasePattern:
         self.noise = np.random.normal(loc=0, scale=(max_value - min_value) * noise_val / 100.0, size=length)
         self.pattern_names = ''
 
+        self.methods_dic = {
+            'A': self._mean,
+            'B': self._increase,
+            'C': self._one_peak,
+            'D': self._multiple_steps,
+            'E': self._teeth
+        }
+
     # A
     def _mean(self):
         val = (self.min_value + self.max_value)/2
@@ -92,18 +100,12 @@ class BasePattern:
         self.values['teeth'] = tmp_array + self.noise
         self.pattern_names += 'E'
 
-    def compute_pattern(self):
+    def compute_pattern(self, pattern_name):
 
-        # Never used
-        # self._peak_down()
+        for pattern in pattern_name:
 
-        self._mean()  # A
-        self._increase()  # B
-        self._one_peak()  # C
-        # self._two_peak()
-        # self._one_step()
-        self._multiple_steps()   # D
-        self._teeth()  # E
+            print(f'Creating base_pattern: {pattern}')
+            self.methods_dic[pattern]()
 
     def plot_patterns(self):
 
@@ -117,13 +119,13 @@ class BasePattern:
             f_axi1 = fig.add_subplot(gs[0, i])
             f_axi1.plot(v, color=colors[i])
             # f_axi1.axis('equal', ymin=min(v), ymax=max(v))
-            f_axi1.axes.get_yaxis().set_visible(False)
-            f_axi1.axes.get_xaxis().set_visible(False)
+            # f_axi1.axes.get_yaxis().set_visible(False)
+            # f_axi1.axes.get_xaxis().set_visible(False)
             f_axi1.set_title(f'Universal Pattern: {self.pattern_names[i]}')
             if i == 0:
                 f_axi1.axis(ymin=self.min_value, ymax=self.max_value)
 
-        plt.show()
+        # plt.show()
 
     def save(self, save_path):
 
@@ -135,9 +137,6 @@ class BasePattern:
             v = self.values[k]
             plt.plot(v, label=k)
             to_save[i] = np.insert(v, 0, i)
-
-        plt.legend()
-        plt.show()
 
         if len(to_save) > 5:
             self.pattern_names = ''
@@ -151,26 +150,3 @@ class BasePattern:
         path = join(save_path, filename)
         print(f'Saving: {path}')
         np.save(path, to_save)
-
-
-dataset = 'cbf'
-if dataset == 'gunpoint':
-    ref_name = 'REF_num-5.npy'
-    stream_name = 'STREAM_cycles-per-label-20_set-test_id-0.npy'
-else:
-    ref_name = 'REF_length-100_noise-5_warp-10_shift-10_outliers-0_num-10.npy'
-    stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-0.npy'
-
-
-t = TimeSeries(
-    f'../../data/{dataset}/{stream_name}')
-timeseries = t.timeseries
-
-ref = RefPattern(f'../../data/{dataset}/{ref_name}')
-len_ref = ref.lab_patterns[0]['pattern'].shape[0]
-
-base = BasePattern(len_ref, timeseries.min(), timeseries.max())
-base.compute_pattern()
-
-# base.plot_patterns()
-base.save(f'../../data/{dataset}')

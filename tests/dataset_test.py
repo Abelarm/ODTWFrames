@@ -1,4 +1,3 @@
-import re
 from random import choice
 
 import numpy as np
@@ -11,14 +10,15 @@ from utils.functions import get_id_interval, Paths
 from utils.specification import specs
 
 
-dataset = 'cbf'
-dataset_type = 'RP'
+dataset = 'gunpoint'
+dataset_type = 'DTW'
 base_pattern = False
 pattern_name = ''
 dataset_name = dataset if not base_pattern else dataset+'_base'
+always_custom = True
 
-rho = '0.100'
-window_size = 5
+rho = 'multi'
+window_size = 1
 
 
 rho_name = 'rho '
@@ -38,7 +38,7 @@ data_path = paths.get_data_path()
 beginning_path = paths.get_beginning_path()
 
 
-if 2 < channels < 5:
+if 2 < channels < 5 and not always_custom:
     datagen = ImageDataGenerator(rescale=1./255,
                                  featurewise_center=False,
                                  featurewise_std_normalization=False)
@@ -55,6 +55,7 @@ if 2 < channels < 5:
     class_idx = 0
 
 else:
+    window_size = 5 if rho == 'multi' else window_size
     x_dim = (specs[dataset_name]['x_dim'], window_size, channels)
     train_generator = DataGenerator(f'{data_path}/test',
                                     dim=x_dim,

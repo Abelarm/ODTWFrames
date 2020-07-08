@@ -49,7 +49,8 @@ class Paths(metaclass=Singleton):
     rho_name = ''
     model_name = ''
 
-    def __init__(self, dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../../..'):
+    def __init__(self, dataset, dataset_type, rho, window_size, base_pattern, pattern_name, column_scale=False,
+                 core_path='../../..'):
 
         self.dataset = dataset
         self.dataset_type = dataset_type
@@ -57,6 +58,7 @@ class Paths(metaclass=Singleton):
         self.window_size = window_size
         self.base_pattern = base_pattern
         self.pattern_name = pattern_name
+        self.column_scale = column_scale
         self.core_path = core_path
 
         self.get_rho_name()
@@ -82,6 +84,10 @@ class Paths(metaclass=Singleton):
             self.model_name = f'{self.dataset_type}_{len(multi_rho)}'
         else:
             self.model_name = f'{self.dataset_type}_{self.window_size}'
+
+        if self.column_scale:
+            self.model_name += '_column_scale'
+
         return self.model_name
 
     def get_beginning_path(self):
@@ -100,6 +106,8 @@ class Paths(metaclass=Singleton):
         beginning_path = self.get_beginning_path()
 
         data_path = f'{beginning_path}/{self.rho_name}/{self.model_name}'
+        data_path = data_path.replace('_column_scale', '')
+
         return data_path
 
     def get_weight_dir(self):

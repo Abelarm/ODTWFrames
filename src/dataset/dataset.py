@@ -61,11 +61,16 @@ class Dataset:
             else:
                 channel_iterator = [int(x['label']) for x in self.reference.lab_patterns]
             prefix_path = self.starting_path.split('rho ')[0]
+            if base_pattern:
+                base_name = self.starting_path.split('_')[-1]
+                suffix_rho = f'_base_{base_name}'
+            else:
+                suffix_rho = ''
             if ref_ids:
                 for c, ref_id in zip(channel_iterator, ref_ids):
                     if self.rho == 'multi':
                         rho_arr = multi_rho
-                        starting_path_arr = [f'{prefix_path}rho {rho}' for rho in rho_arr]
+                        starting_path_arr = [f'{prefix_path}rho {rho}{suffix_rho}' for rho in rho_arr]
                     else:
                         rho_arr = [self.rho]
                         starting_path_arr = [self.starting_path]
@@ -82,7 +87,7 @@ class Dataset:
                 for c in channel_iterator:
                     if self.rho == 'multi':
                         rho_arr = multi_rho
-                        starting_path_arr = [f'{prefix_path}rho {rho}' for rho in rho_arr]
+                        starting_path_arr = [f'{prefix_path}rho {rho}{suffix_rho}' for rho in rho_arr]
                     else:
                         rho_arr = [self.rho]
                         starting_path_arr = [self.starting_path]

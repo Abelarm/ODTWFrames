@@ -130,6 +130,8 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
 
 def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred, save_dir):
 
+    # replace the column_scale of the model name not use for gettin the files
+    model_name = model_name.replace('_column_scale', '')
     ts_id = 0
 
     file_name = f'{core_path}/data/{dataset_name}/' \

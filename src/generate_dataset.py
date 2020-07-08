@@ -4,11 +4,11 @@ from dataset.generator import generate
 from utils.functions import Paths
 from utils.specification import specs
 
-dataset_array = ['gunpoint']
+dataset_array = ['rational']
 rho_array = ['multi']
 window_size_array = [1]
-base_pattern = False
-pattern_name = 'AB' if base_pattern else ''
+base_pattern = True
+pattern_name = 'ABC' if base_pattern else ''
 dataset_type = 'DTW'
 
 for dataset, rho, window_size in product(dataset_array, rho_array, window_size_array):

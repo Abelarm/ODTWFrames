@@ -296,6 +296,13 @@ class Network:
         for i in range(self.y_dim):
             ds_name = dataset_name if not self.base_pattern else dataset_name + '_base'
             relevant_sample_name = specs[ds_name][f'repre_samples_{self.x_dim[1]}'][i]
+            if 'multi' in weights_dir:
+                if 'base' not in ds_name:
+                    relevant_sample_name = specs[ds_name+'_base'][f'repre_samples_{self.x_dim[1]}'][i]
+                interval_exp = r'X:[0-9]_(.*)\|'
+                interval = re.search(interval_exp, relevant_sample_name, re.IGNORECASE).group(1)
+                new_interval = '-'.join(map(str, [interval.split('-')[0], int(interval.split('-')[0])+1]))
+                relevant_sample_name = re.sub('[0-9]*-[0-9]*', new_interval, relevant_sample_name)
 
             idx = self.test_generator_analysis.filenames.index(relevant_sample_name)
             selected_x, selected_y = self.test_generator_analysis[idx]

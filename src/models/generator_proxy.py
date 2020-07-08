@@ -6,7 +6,8 @@ from models.dataGenerator import DataGenerator
 
 
 def create_generator(root_dir, x_dim, y_dim, batch_size,
-                     preprocessing=True, reload_images=False, base_pattern=False, always_custom=False):
+                     base_pattern=False, always_custom=False, preprocessing=True, reload_images=False,
+                     scaler_dim=(0, 1)):
 
     if len(x_dim) < 3 or x_dim[2] > 4 or x_dim[2] < 3 or base_pattern or always_custom:
 
@@ -15,7 +16,8 @@ def create_generator(root_dir, x_dim, y_dim, batch_size,
                                         n_classes=y_dim,
                                         to_fit=True,
                                         batch_size=batch_size,
-                                        preprocessing=preprocessing)
+                                        preprocessing=preprocessing,
+                                        scaler_dim=scaler_dim)
         if preprocessing:
             scaler = train_generator.scaler
         else:
@@ -27,7 +29,8 @@ def create_generator(root_dir, x_dim, y_dim, batch_size,
                                              to_fit=True,
                                              batch_size=batch_size,
                                              scaler=scaler,
-                                             preprocessing=preprocessing)
+                                             preprocessing=preprocessing,
+                                             scaler_dim=scaler_dim)
 
         test_generator = DataGenerator(f'{root_dir}/test',
                                        dim=x_dim,
@@ -35,7 +38,8 @@ def create_generator(root_dir, x_dim, y_dim, batch_size,
                                        to_fit=True,
                                        batch_size=batch_size,
                                        scaler=scaler,
-                                       preprocessing=preprocessing)
+                                       preprocessing=preprocessing,
+                                       scaler_dim=scaler_dim)
 
         test_generator_analysis = DataGenerator(f'{root_dir}/test',
                                                 dim=x_dim,
@@ -44,7 +48,8 @@ def create_generator(root_dir, x_dim, y_dim, batch_size,
                                                 shuffle=False,
                                                 batch_size=1,
                                                 scaler=scaler,
-                                                preprocessing=preprocessing)
+                                                preprocessing=preprocessing,
+                                                scaler_dim=scaler_dim)
 
     else:
         if preprocessing:

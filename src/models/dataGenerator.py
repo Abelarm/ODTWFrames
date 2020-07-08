@@ -21,6 +21,7 @@ class DataGenerator(Sequence):
                  batch_size=32,
                  shuffle=True,
                  preprocessing=False,
+                 scaler_dim=(0, 1),
                  scaler=None):
         """
 
@@ -43,6 +44,7 @@ class DataGenerator(Sequence):
         self.n_classes = n_classes
         self.shuffle = shuffle
         self.normalize = preprocessing
+        self.scaler_dim = scaler_dim
         self.all_samples_name = []
 
         for x in glob(f'{self.sequence_path}/X*'):
@@ -62,7 +64,7 @@ class DataGenerator(Sequence):
                 for n in tqdm(self.all_samples_name):
                     x = np.load(f'{n}')
                     if len(x.shape) > 2:
-                        res_x = x.reshape((x.shape[0]*x.shape[1], -1))
+                        res_x = x.reshape((x.shape[self.scaler_dim[0]]*x.shape[self.scaler_dim[1]], -1))
                         self.scaler.partial_fit(res_x)
                     else:
                         self.scaler.partial_fit(x)
@@ -141,7 +143,7 @@ class DataGenerator(Sequence):
             if self.normalize:
                 if len(tmp_x.shape) > 2:
                     orignal_shape = tmp_x.shape
-                    res_x = tmp_x.reshape((tmp_x.shape[0] * tmp_x.shape[1], -1))
+                    res_x = tmp_x.reshape((tmp_x.shape[self.scaler_dim[0]] * tmp_x.shape[self.scaler_dim[1]], -1))
                     res_x = self.scaler.transform(res_x)
                     X[i] = res_x.reshape(orignal_shape)
                 else:

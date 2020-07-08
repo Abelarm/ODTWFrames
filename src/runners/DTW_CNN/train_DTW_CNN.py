@@ -16,9 +16,9 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'cbf'
+dataset = 'gunpoint'
 dataset_type = 'DTW'
-rho = 'multi'
+rho = '0.100'
 window_size = 5
 window_size = 5 if rho == 'multi' else window_size
 base_pattern = False
@@ -38,14 +38,17 @@ elif len(pattern_name) > 0:
 
 parameters = dict()
 parameters['batch_size'] = 32
+parameters['scaler_dim'] = (0, 1)  # transform the image into array flattening the dimension 0 and 2 (default: 0, 1)
+column_scale = True if parameters['scaler_dim'] != (0, 1) else False
 parameters['preprocessing'] = True
 parameters['reload_images'] = False
 
 
-paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name)
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, column_scale=column_scale)
 
 data_path = paths.get_data_path()
 weight_dir = paths.get_weight_dir()
+
 
 # Add the following code anywhere in your machine learning file
 project_name = f'{dataset_type}_CNN_{dataset_name}'
@@ -55,14 +58,18 @@ if len(pattern_name) > 0:
     project_name = f'{dataset_type}_CNN_{dataset}'
 
 experiment = Experiment(api_key="tIjRDRXwqoq2RgkME4epGXp1C",
-                        project_name=project_name, workspace="luigig", disabled=True)
+                        project_name=project_name, workspace="luigig", disabled=False)
+
+model_name = f'{dataset_type}_CNN_{window_size}'
+if column_scale:
+    model_name += '_column_scale'
 
 NN = Network(data_path,
              x_dim=(x_dim, window_size, channels), y_dim=y_dim,
-             model_name=f'{dataset_type}_CNN_{window_size}.hdf5', experiment=experiment)
+             model_name=f'{model_name}.hdf5', experiment=experiment)
 
 NN.init_model(get_model, parameters, optimizer, create_generator)
-NN.train(epochs=1, save_path=weight_dir, from_checkpoint=False)
+NN.train(epochs=100, save_path=weight_dir, from_checkpoint=False)
 NN.evaluate(weights_dir=weight_dir)
 # NN.check_pattern(weights_dir=weight_dir, dataset_name=dataset)
 # NN.explain(weights_dir=weight_dir, dataset_name=dataset)

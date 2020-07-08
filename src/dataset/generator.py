@@ -20,11 +20,6 @@ def generate(dataset,
              pattern_name='',
              path_class=None):
 
-    if base_pattern:
-        ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
-        if len(pattern_name) > 0:
-            ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
-
     if dataset == 'gunpoint':
         ref_name = 'REF_num-5.npy'
         stream_name = 'STREAM_cycles-per-label-10_set'
@@ -48,6 +43,11 @@ def generate(dataset,
         generate_database(dataset)
 
     if base_pattern:
+        ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
+        if len(pattern_name) > 0:
+            ref_name = f'BASE_REF_len-{length}_noise-5_num-1_{pattern_name}.npy'
+
+    if base_pattern:
         t = TimeSeries(
             f'../data/{dataset}/{stream_name}-train_id-0.npy')
         timeseries = t.timeseries
@@ -58,8 +58,8 @@ def generate(dataset,
     print("========= CALCULATING DISTANCE MATRIX")
     if rho == 'multi':
         for rho_val in multi_rho:
-            # compute_distance(mat_type, dataset, base_pattern, pattern_name, rho_val)
-            pass
+            compute_distance(mat_type, dataset, base_pattern, pattern_name, rho_val)
+            # pass
 
     save_path_image = path_class.get_data_path()
     dtw_starting_path = path_class.get_dtw_path()

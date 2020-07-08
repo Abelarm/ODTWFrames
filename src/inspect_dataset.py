@@ -7,11 +7,15 @@ from utils.functions import Paths
 from utils.specification import specs, cmap, multi_rho
 
 dataset = 'gunpoint'
-base_pattern = False
-pattern_name = ''
+base_pattern = True
+pattern_name = 'ABC'
 rho = 'multi'
 dataset_type = 'DTW'
-window_size = 1
+window_size = 5
+
+dataset_name = dataset if not base_pattern else dataset + '_base'
+length = specs[dataset_name]['x_dim']
+stream_id = 0
 
 if pattern_name == 'FULL':
     ref_ids = range(5)
@@ -24,6 +28,7 @@ if base_pattern:
         rho_name = f'rho {rho}_base_{pattern_name}'
 else:
     rho_name = f'rho {rho}'
+    ref_ids = specs[dataset_name]['ref_id']
 
 if dataset_type == 'DTW':
     image_class = DTW
@@ -31,9 +36,6 @@ elif dataset_type == 'RP':
     image_class = RP
     rho_name = 'RP'
 
-dataset_name = dataset if not base_pattern else dataset + '_base'
-length = specs[dataset_name]['x_dim']
-stream_id = 0
 
 paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
 beginning_path = paths.get_beginning_path()
@@ -57,14 +59,16 @@ timeseries = t.timeseries
 
 ref = RefPattern(f'{beginning_path}/{ref_name}')
 
-ref_ids = specs[dataset_name]['ref_id']
-
 
 imgs = []
 prefix_path = beginning_path.split('rho ')[0]
+if base_pattern:
+    suffix_rho = f'_base_{paths.pattern_name}'
+else:
+    suffix_rho = ''
 if rho == 'multi':
     rho_arr = multi_rho
-    starting_path_arr = [f'{prefix_path}/rho {rho}' for rho in rho_arr]
+    starting_path_arr = [f'{prefix_path}/rho {rho}{suffix_rho}' for rho in rho_arr]
 else:
     rho_arr = [rho]
     starting_path_arr = [beginning_path]

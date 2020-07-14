@@ -4,6 +4,8 @@ import tensorflow as tf
 import numpy as np
 import random
 
+import yaml
+
 os.environ['PYTHONHASHSEED'] = str(42)
 tf.random.set_seed(42)
 np.random.seed(42)
@@ -15,13 +17,17 @@ from models.generator_proxy import create_generator
 from models.network import Network
 from models.CNN.model import get_model, optimizer
 
-dataset = 'gunpoint'
-dataset_type = 'DTW'
-rho = 'multi'
-window_size = 5 if rho == 'multi' else 5
-base_pattern = True
-pattern_name = 'ABC'
+with open('conf.yaml') as file:
+  conf_data = yaml.safe_load(file)
 
+
+dataset = conf_data['dataset']
+window_size = conf_data['window_size']
+dataset_type = conf_data['dataset_type']
+rho = conf_data['rho']
+
+base_pattern = True if len(conf_data['pattern_name']) != 0 else False
+pattern_name = conf_data['pattern_name']
 
 dataset_name = dataset if not base_pattern else dataset+'_base'
 y_dim = specs[dataset_name]['y_dim']
@@ -34,12 +40,8 @@ elif len(pattern_name) > 0:
     channels = len(pattern_name)
 
 
-parameters = dict()
-parameters['batch_size'] = 32
-parameters['scaler_dim'] = (0, 1)
-column_scale = True if parameters['scaler_dim'] != (0, 1) else False
-parameters['preprocessing'] = True
-parameters['reload_images'] = False
+parameters = conf_data['parameters']
+column_scale = True if parameters['scaler_dim'] != [0, 1] else False
 
 
 paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, column_scale=column_scale)

@@ -10,7 +10,7 @@ from utils.functions import get_id_interval, Paths
 from utils.specification import specs
 
 
-dataset = 'gunpoint'
+dataset = 'rational'
 dataset_type = 'DTW'
 base_pattern = True
 pattern_name = 'ABC'
@@ -29,7 +29,7 @@ if dataset_type == 'RP':
 
 channels = specs[dataset_name]['channels']
 if len(pattern_name) > 0:
-    channels = len(pattern_name.split('_'))
+    channels = len(pattern_name)
 length = specs[dataset_name]['x_dim']
 
 paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
@@ -55,8 +55,8 @@ if 2 < channels < 5 and not always_custom:
     class_idx = 0
 
 else:
-    window_size = 5 if rho == 'multi' else window_size
-    x_dim = (specs[dataset_name]['x_dim'], window_size, channels)
+    second_dim = 5 if rho == 'multi' else window_size
+    x_dim = (specs[dataset_name]['x_dim'], second_dim, channels)
     train_generator = DataGenerator(f'{data_path}/test',
                                     dim=x_dim,
                                     n_classes=specs[dataset_name]['y_dim'],
@@ -71,7 +71,7 @@ else:
 if base_pattern:
     interval = [1129, 1134]
     ts_id = 0
-    class_id = 1
+    class_id = 2
 else:
     interval = []
     ts_id = 0
@@ -80,7 +80,7 @@ len_generator = len(train_generator)
 if len(interval) == 0 or ts_id is None:
     idx = choice(range(len_generator))
 else:
-    filename_to_search = f'X:{ts_id}_{interval[0]}-{interval[1]}|Y:{class_id}.npy'
+    filename_to_search = f'X:{ts_id}_{interval[0]}-{interval[0]+window_size}|Y:{class_id}.npy'
     idx = train_generator.filenames.index(filename_to_search)
 
 print(f'selected sample with ID: {idx} \n')
@@ -125,7 +125,7 @@ f_axi_0.axis(xmin=interval[0]-75, xmax=interval[1]+75)
 
 ref_ids = specs[dataset_name]['ref_id']
 if len(pattern_name) > 0:
-    ref_ids = range(len(pattern_name.split('_')))
+    ref_ids = range(len(pattern_name))
 
 for i, c in enumerate(ref_ids):
 

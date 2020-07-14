@@ -105,8 +105,14 @@ class Dataset:
             images, labels = self.image_creator(*images_tmp, window_size=self.window_size)
             if self.rho == 'multi':
                 img_shape = images.shape
-                images = images.reshape((img_shape[0], img_shape[1], len(channel_iterator), len(rho_arr)))
-                images = np.transpose(images, axes=(0, 1, 3, 2))
+                if img_shape[2] == 1:
+                    images = images.reshape((img_shape[0], img_shape[1], len(channel_iterator), len(rho_arr)))
+                    images = np.transpose(images, axes=(0, 1, 3, 2))
+                else:
+                    images = images.reshape((img_shape[0], img_shape[1], self.window_size, len(channel_iterator),
+                                             len(rho_arr)))
+                    images = np.transpose(images, axes=(0, 1, 2, 4, 3))
+
 
             for i, (v, l) in enumerate(zip(images, labels)):
 

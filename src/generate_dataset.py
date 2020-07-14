@@ -6,7 +6,7 @@ from utils.specification import specs
 
 dataset_array = ['rational']
 rho_array = ['multi']
-window_size_array = [1]
+window_size_array = [5]
 base_pattern = True
 pattern_name = 'ABC' if base_pattern else ''
 dataset_type = 'DTW'

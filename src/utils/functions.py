@@ -1,8 +1,6 @@
 import re
 from weakref import WeakValueDictionary
 
-from utils.specification import multi_rho
-
 
 def get_id_interval(filename):
     # print(filename)
@@ -80,10 +78,7 @@ class Paths(metaclass=Singleton):
         return rho_name
 
     def get_model_name(self):
-        if 'multi' in self.rho_name:
-            self.model_name = f'{self.dataset_type}_{len(multi_rho)}'
-        else:
-            self.model_name = f'{self.dataset_type}_{self.window_size}'
+        self.model_name = f'{self.dataset_type}_{self.window_size}'
 
         if self.column_scale:
             self.model_name += '_column_scale'

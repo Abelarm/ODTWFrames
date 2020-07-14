@@ -59,13 +59,21 @@ class DataGenerator(Sequence):
 
         if self.normalize:
             if not scaler:
-                self.scaler = StandardScaler()
+                if len(self.dim) == 4:
+                    self.scaler = [StandardScaler() for _ in range(dim[2])]
+                else:
+                    self.scaler = StandardScaler()
                 print('Fitting the scaler')
                 for n in tqdm(self.all_samples_name):
                     x = np.load(f'{n}')
-                    if len(x.shape) > 2:
+                    if len(self.dim) == 3:
                         res_x = x.reshape((x.shape[self.scaler_dim[0]]*x.shape[self.scaler_dim[1]], -1))
                         self.scaler.partial_fit(res_x)
+                    elif len(x.shape) == 4:
+                        for r in range(self.dim[2]):
+                            tmp_x = x[:, :, r, :]
+                            tmp_x = tmp_x.reshape((tmp_x.shape[self.scaler_dim[0]]*tmp_x.shape[self.scaler_dim[1]], -1))
+                            self.scaler[r].partial_fit(tmp_x)
                     else:
                         self.scaler.partial_fit(x)
                 print('Fitted complete')
@@ -141,11 +149,18 @@ class DataGenerator(Sequence):
         for i, path in enumerate(list_IDs_temp):
             tmp_x = np.load(f'{path}')
             if self.normalize:
-                if len(tmp_x.shape) > 2:
+                if len(self.dim) == 3:
                     orignal_shape = tmp_x.shape
                     res_x = tmp_x.reshape((tmp_x.shape[self.scaler_dim[0]] * tmp_x.shape[self.scaler_dim[1]], -1))
                     res_x = self.scaler.transform(res_x)
                     X[i] = res_x.reshape(orignal_shape)
+                elif len(self.dim) == 4:
+                    for r in range(self.dim[2]):
+                        res_x = tmp_x[:, :, r, :]
+                        orignal_shape = res_x.shape
+                        res_x = res_x.reshape((res_x.shape[self.scaler_dim[0]] * res_x.shape[self.scaler_dim[1]], -1))
+                        tmp_x[:, :, r, :] = self.scaler[r].transform(res_x).reshape(orignal_shape)
+                    X[i] = tmp_x
                 else:
                     X[i] = self.scaler.transform(tmp_x)
             else:

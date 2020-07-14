@@ -244,7 +244,7 @@ class Network:
 
         plot_confusion_matrix(y_true, self.y_pred, self.target_names, save_dir)
 
-        window_size = 1 if 'multi' in rho_name else self.x_dim[1]
+        window_size = 1 if 'multi' in rho_name and len(self.x_dim) != 4 else self.x_dim[1]
 
         if len(self.x_dim) > 2:
             # images

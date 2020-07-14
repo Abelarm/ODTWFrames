@@ -40,7 +40,7 @@ def generate(dataset,
                   " \t 8) seasonal          ----> 4 classes")
             exit(1)
         print("========= CREATING RAW DATA")
-        generate_database(dataset)
+        # generate_database(dataset)
 
     if base_pattern:
         ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
@@ -58,8 +58,8 @@ def generate(dataset,
     print("========= CALCULATING DISTANCE MATRIX")
     if rho == 'multi':
         for rho_val in multi_rho:
-            compute_distance(mat_type, dataset, base_pattern, pattern_name, rho_val)
-            # pass
+            # compute_distance(mat_type, dataset, base_pattern, pattern_name, rho_val)
+            pass
 
     save_path_image = path_class.get_data_path()
     dtw_starting_path = path_class.get_dtw_path()

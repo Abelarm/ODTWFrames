@@ -18,7 +18,8 @@ def generate(dataset,
              max_stream_id,
              base_pattern=False,
              pattern_name='',
-             path_class=None):
+             path_class=None,
+             post_processing=None):
 
     if dataset == 'gunpoint':
         ref_name = 'REF_num-5.npy'
@@ -74,7 +75,8 @@ def generate(dataset,
                  classes=[x + 1 for x in range(n_classes)],
                  max_id=max_stream_id[0] - 1)
 
-    ref_ids = ds.create_image_dataset(save_path_image, base_pattern=base_pattern)
+    ref_ids = ds.create_image_dataset(save_path_image, base_pattern=base_pattern,
+                                      post_processing=post_processing)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3)
     if not path.exists(f'{beginning_path}/TS_{window_size}/train'):
         print('====== CREATING SERIES DATASET ====== ')
@@ -90,7 +92,8 @@ def generate(dataset,
                  classes=[x + 1 for x in range(n_classes)],
                  max_id=max_stream_id[1] - 1)
 
-    ds.create_image_dataset(save_path_image, base_pattern=base_pattern)
+    ds.create_image_dataset(save_path_image, base_pattern=base_pattern,
+                            post_processing=post_processing)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3)
     if not path.exists(f'{beginning_path}/TS_{window_size}/validation'):
         print('====== CREATING SERIES DATASET ====== ')
@@ -109,7 +112,8 @@ def generate(dataset,
                  max_id=max_stream_id[2] - 1)
 
     print(f'Using selected ids: {ref_ids}')
-    ds.create_image_dataset(save_path_image, base_pattern=base_pattern, ref_ids=ref_ids)
+    ds.create_image_dataset(save_path_image, base_pattern=base_pattern, ref_ids=ref_ids,
+                            post_processing=post_processing)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3, ref_ids)
     if not path.exists(f'{beginning_path}/TS_{window_size}/test'):
         print('====== CREATING SERIES DATASET ====== ')

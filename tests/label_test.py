@@ -11,8 +11,8 @@ from dataset.files import TimeSeries
 from utils.functions import Paths
 from utils.specification import specs
 
-dataset_type = 'RP'
-dataset = 'cbf'
+dataset_type = 'DTW'
+dataset = 'gunpoint'
 base_pattern = False
 dataset_name = dataset if not base_pattern else dataset+'_base'
 
@@ -35,13 +35,13 @@ else:
     stream_name = 'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-*.npy'
 
 
-paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, network_type='CNN', core_path='../')
 beginning_path = paths.get_beginning_path()
 
 for files in glob(join(beginning_path, stream_name)):
     t = TimeSeries(files)
     ts_id = t.get_properties()['id']
-    if int(ts_id) > 9:
+    if int(ts_id) > 8:
         print(f"skipping the id: {ts_id}")
         continue
     print(f'Checking STREAM ID: {ts_id}')
@@ -88,8 +88,12 @@ for files in glob(join(beginning_path, stream_name)):
                 dtw_path = f'rpMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-0' \
                            f'_ref-id-{c}_stream-id-{ts_id}.npy'
             else:
-                dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-0' \
-                           f'_rho-0.100_ref-id-{c}_stream-id-{ts_id}.npy'
+                if dataset_name == 'gunpoint':
+                    dtw_path = f'dtwMat-test_rho-0.100_ref-id-{c}_stream-id-{ts_id}.npy'
+                else:
+
+                    dtw_path = f'dtwMat-test_length-{length}_noise-5_warp-10_shift-10_outliers-0' \
+                               f'_rho-0.100_ref-id-{c}_stream-id-{ts_id}.npy'
 
             loaded_dtw = np.load(join(paths.get_dtw_path(), dtw_path))
             sliced_dtw = loaded_dtw[:, interval[0]:interval[1]]

@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adam
 
 
 def get_model(x_dim, y_dim):
-    n_feature_maps = 32
+    n_feature_maps = 25
 
     input_layer = Input(x_dim)
     # BLOCK 1
@@ -90,9 +90,9 @@ def get_model(x_dim, y_dim):
 
     gap_layer = GlobalAveragePooling2D()(output_block_4)
 
-    output_layer = Dense(y_dim, activation='softmax')(gap_layer)
+    output = Dense(y_dim, activation='softmax')(gap_layer)
 
-    model = Model(inputs=input_layer, outputs=output_layer)
+    model = Model(inputs=input_layer, outputs=output)
 
     return model
 

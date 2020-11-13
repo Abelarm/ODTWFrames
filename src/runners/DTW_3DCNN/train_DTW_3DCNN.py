@@ -1,21 +1,9 @@
-import os
-
-import tensorflow as tf
-import numpy as np
-import random
-
 import yaml
 
-os.environ['PYTHONHASHSEED'] = str(42)
-tf.random.set_seed(42)
-np.random.seed(42)
-random.seed(42)
-
+from runners.trainer import train
 from utils.functions import Paths
-from utils.specification import specs, multi_rho
-from models.generator_proxy import create_generator
-from models.network import Network
-from models.CNN3D.model import get_model, optimizer
+from utils.specification import specs
+from models.ResNet1D.model_1M import get_model, optimizer
 
 with open('conf.yaml') as file:
   conf_data = yaml.safe_load(file)
@@ -28,6 +16,14 @@ rho = conf_data['rho']
 
 base_pattern = True if len(conf_data['pattern_name']) != 0 else False
 pattern_name = conf_data['pattern_name']
+
+network_type = 'CNN'
+appendix_name = None
+
+
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern=base_pattern, pattern_name=pattern_name,
+              network_type=network_type, appendix_name=appendix_name)
+
 
 dataset_name = dataset if not base_pattern else dataset+'_base'
 y_dim = specs[dataset_name]['y_dim']
@@ -43,25 +39,13 @@ elif len(pattern_name) > 0:
 parameters = conf_data['parameters']
 column_scale = True if parameters['scaler_dim'] != [0, 1] else False
 
+project_name = f'{dataset_type}_{network_type}_{dataset}'
 
-paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, column_scale=column_scale)
-
-data_path = paths.get_data_path()
-weight_dir = paths.get_weight_dir()
-
-model_name = f'{dataset_type}_CNN_{window_size}'
-if column_scale:
-    model_name += '_column_scale'
-
-NN = Network(data_path,
-             x_dim=(x_dim, window_size, len(multi_rho), channels), y_dim=y_dim,
-             model_name=f'{model_name}.hdf5')
-
-NN.init_model(get_model, parameters, optimizer, create_generator)
-NN.train(epochs=1, save_path=weight_dir, from_checkpoint=False)
-NN.evaluate(weights_dir=weight_dir)
-# NN.check_pattern(weights_dir=weight_dir, dataset_name=dataset)
-# NN.explain(weights_dir=weight_dir, dataset_name=dataset)
-NN.summary_experiments(weights_dir=weight_dir, dataset_name=dataset)
-# NN.error_analysis(weights_dir=weight_dir, dataset_name=dataset)
-
+train(dataset=dataset,
+      project_name=project_name,
+      paths=paths,
+      x_dim=(x_dim, window_size, channels),
+      y_dim=y_dim,
+      get_model=get_model,
+      parameters=parameters,
+      optimizer=optimizer)

@@ -1,10 +1,12 @@
-dataset: 'rational'
+dataset: 'cbf'
 dataset_type: 'DTW'
-rho: 'multi'
-window_size: 1
+rho: '0.100'
+window_size: 25
 pattern_name: ''
+network_type: 'CNN'
+appendix_name: null
 parameters:
-  batch_size: 21
+  batch_size: 32
   scaler_dim: [0, 1]
   preprocessing: True
   reload_images: False

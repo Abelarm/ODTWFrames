@@ -32,8 +32,8 @@ for dataset, rho, window_size, pattern_name in product(dataset_arr, rho_arr, win
     parameters['preprocessing'] = True
     parameters['reload_images'] = False
 
-    network_type = 'CNN'
-    appendix_name = None
+    network_type = 'ResNet'
+    appendix_name = '1M'
 
     paths = Paths(dataset, dataset_type, rho, window_size, base_pattern=base_pattern, pattern_name=pattern_name,
                   network_type=network_type, appendix_name=appendix_name)

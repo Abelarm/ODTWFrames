@@ -128,19 +128,16 @@ def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
             plt.close(fig)
 
 
-def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_name, window_size, y_pred, save_dir):
+def plot_class_probabilities(X_generator, y_dim, dataset_name, beginning_path, dtw_path,
+                             window_size, y_pred, save_dir):
 
-    # replace the column_scale of the model name not use for gettin the files
-    model_name = model_name.replace('_column_scale', '')
     ts_id = 0
 
-    file_name = f'{core_path}/data/{dataset_name}/' \
-                f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set' \
-                f'-test_id-{ts_id}.npy'
+    file_name = f'{beginning_path}/' \
+                f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set-test_id-{ts_id}.npy'
 
-    if dataset_name == 'gunpoint':
-        file_name = f'{core_path}/data/{dataset_name}/' \
-                    f'STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
+    if 'gunpoint' in beginning_path:
+        file_name = f'{beginning_path}/STREAM_cycles-per-label-20_set-test_id-{ts_id}.npy'
 
     print(f'Selected STREAM_ID: {ts_id}')
     t = TimeSeries(file_name)
@@ -161,16 +158,15 @@ def plot_class_probabilities(X_generator, y_dim, dataset_name, rho_name, model_n
 
         label = int(max(tmp_labels.items(), key=operator.itemgetter(1))[0])
 
-        file = glob(f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/{label}/{ts_id}_{interval}.png')
+        file = glob(f'{dtw_path}/test/{label}/{ts_id}_{interval}.png')
         if len(file) == 1:
             filename = f'{label}/{ts_id}_{interval}.png'
         else:
-            file = glob(f'{core_path}/data/{dataset_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
+            file = glob(f'{dtw_path}/test/X:{ts_id}_{interval}|Y:{label}.npy')
             if len(file) == 1:
                 filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
             else:
-                file = glob(
-                    f'{core_path}/data/{dataset_name}/{rho_name}/{model_name}/test/X:{ts_id}_{interval}|Y:{label}.npy')
+                file = glob(f'{dtw_path}/test/X:{ts_id}_{interval}|Y:{label}.npy')
                 if len(file) == 1:
                     filename = f'X:{ts_id}_{interval}|Y:{label}.npy'
                 else:

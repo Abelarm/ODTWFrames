@@ -1,10 +1,11 @@
-dataset: 'rational'
-dataset_type: 'DTW'
-rho: 'multi'
+dataset: 'cbf'
+dataset_type: 'TS'
 window_size: 5
+post_processing: 'min'
 pattern_name: ''
-network_type: 'CNN'
-appendix_name: null
+rho: '0.100'
+network_type: 'ResNet'
+appendix_name: ''
 parameters:
   batch_size: 32
   scaler_dim: [0, 1]

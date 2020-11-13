@@ -2,10 +2,15 @@ from os.path import join
 
 import cv2
 import tensorflow as tf
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE, MDS
 from tensorflow import keras
 import numpy as np
 import matplotlib.pyplot as plt
 from tf_explain.core import ExtractActivations
+from tqdm import tqdm
+
+from utils.functions import get_id_interval
 
 
 def _get_activation(model, x, layer_name):
@@ -21,7 +26,6 @@ def _get_activation(model, x, layer_name):
 
 
 def visualize_activation(model, selected_x, class_num, save_dir, layer_name='conv2d'):
-
     predictions = _get_activation(model, selected_x, layer_name)
 
     fig = plt.figure(constrained_layout=True)
@@ -92,7 +96,6 @@ def visualize_gradients(model, generator, class_num, save_dir):
 
 
 def _get_gradcam_heatmap(model, sample, last_conv_layer_name='conv2d_3'):
-
     if sample.shape[2] == 5:
         classifier_layer_names = ['batch_normalization_1', 'activation_1', 'flatten', 'dense',
                                   'dense_1', 'dense_2']
@@ -166,7 +169,6 @@ def make_gradcam_heatmap(model, generator, class_num, save_dir, last_conv_layer_
 
 
 def variance_of_activations(model, relevant_sample, save_dir, layer_name='conv2d'):
-
     activations = []
     for (selected_x, selected_y) in relevant_sample:
         activations.append(_get_activation(model, selected_x, layer_name))
@@ -194,6 +196,84 @@ def variance_of_activations(model, relevant_sample, save_dir, layer_name='conv2d
     plt.close(fig)
 
 
+def t_sne(model, generator, dataset_name, save_dir):
+
+    fully_connect_layer = model.layers[-2]
+    fully_connect_model = keras.Model(model.inputs, fully_connect_layer.output)
+
+    max_len = len(generator)
+    max_items = 60000
+    max_items = max_items if max_len > max_items else max_len
+    for i, (x, y) in tqdm(enumerate(generator), total=max_len):
+
+        if i == max_len:
+            break
+
+        ts_id, interval = get_id_interval(generator.filenames[i])
+        start = False
+        if dataset_name == 'gunpoint':
+            if interval[1] % 150 < 50:
+                start = True
+        else:
+            tent_last = str(interval[1])
+            tent_last = int(tent_last[-2:])
+
+            if tent_last < 33:
+                start = True
+
+        if i == 0:
+            prediction = fully_connect_model(x).numpy()
+            if start:
+                color_map = [-1]
+            else:
+                color_map = y.argmax(axis=1)
+        else:
+            prediction = np.concatenate((prediction, fully_connect_model(x).numpy()))
+            if start:
+                color_map = np.concatenate((color_map, [-1]))
+            else:
+                color_map = np.concatenate((color_map, y.argmax(axis=1)))
+
+    prediction = np.asarray(prediction)
+
+
+    print('Computing TSNE')
+    tnse = TSNE(n_components=2, perplexity=25, n_iter=2500, learning_rate=150, verbose=1, n_jobs=-1)
+    x_embedded = tnse.fit_transform(prediction)
+
+    fig, ax = plt.subplots(constrained_layout=True)
+    scatter = ax.scatter(x_embedded[:max_items, 0], x_embedded[:max_items, 1],
+                         c=color_map[:max_items], s=2, cmap='Dark2')
+
+    # produce a legend with the unique colors from the scatter
+    legend1 = ax.legend(*scatter.legend_elements(fmt="{x:.2f}"), title="Classes")
+    ax.add_artist(legend1)
+
+    plt.savefig(join(save_dir, f't-sne.pdf'), bbox_inches='tight')
+    plt.close(fig)
+
+
+    print('Computing MDS')
+    mds = MDS(n_components=2)
+
+    max_items = 15000
+
+    p = np.random.permutation(len(prediction))
+    prediction = prediction[p]
+    color_map = color_map[p]
+
+    x_embedded = mds.fit_transform(prediction[:max_items])
+
+    fig, ax = plt.subplots(constrained_layout=True)
+    scatter = ax.scatter(x_embedded[:max_items, 0], x_embedded[:max_items, 1],
+                         c=color_map[:max_items], s=2, cmap='Dark2')
+
+    # produce a legend with the unique colors from the scatter
+    legend1 = ax.legend(*scatter.legend_elements(fmt="{x:.2f}"), title="Classes")
+    ax.add_artist(legend1)
+
+    plt.savefig(join(save_dir, f'MDS.pdf'), bbox_inches='tight')
+    plt.close(fig)
 
 
 

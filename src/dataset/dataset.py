@@ -20,7 +20,7 @@ class Dataset:
     rho = None
     window_size = None
     classes = None
-    always_custom = True
+    always_custom = False
 
     def __init__(self, mat_type, ref_path, stream_path, stream_set, starting_path, rho, window_size, classes, max_id):
         self.mat_type = mat_type
@@ -37,7 +37,10 @@ class Dataset:
 
         self.reference = RefPattern(self.ref_path)
 
-    def create_image_dataset(self, save_path, ref_ids=None, base_pattern=False):
+    def create_image_dataset(self, save_path, ref_ids=None, base_pattern=False, post_processing=None):
+
+        if post_processing:
+            save_path += f'_{post_processing}'
 
         if self.mat_type == 'DTW':
             image_class = DTW
@@ -102,7 +105,8 @@ class Dataset:
                     if image_tmp.selected not in selected_ids:
                         selected_ids.append(image_tmp.selected)
 
-            images, labels = self.image_creator(*images_tmp, window_size=self.window_size)
+            images, labels = self.image_creator(*images_tmp, window_size=self.window_size,
+                                                post_processing=post_processing)
             if self.rho == 'multi':
                 img_shape = images.shape
                 if img_shape[2] == 1:
@@ -113,11 +117,11 @@ class Dataset:
                                              len(rho_arr)))
                     images = np.transpose(images, axes=(0, 1, 2, 4, 3))
 
-
             for i, (v, l) in enumerate(zip(images, labels)):
 
                 # v.shape[-1] < 3 or v.shape[-1] > 4 or base_pattern ALWAYS USING CUSTOM DataGenerator
                 if v.shape[-1] < 3 or v.shape[-1] > 4 or base_pattern or self.always_custom:
+
                     final_path = join(save_path, f'{self.stream_set}')
                     if not isdir(final_path):
                         os.makedirs(final_path)
@@ -204,17 +208,17 @@ class Dataset:
                 np.save(join(final_path, f'X:{id_path}_{i}-{i + len_size}|Y:{int(max_val[0])}'), rescaled)
 
     @staticmethod
-    def image_creator(*imgs_mat, window_size=25):
+    def image_creator(*imgs_mat, window_size=25, post_processing=None):
 
         imgs, labels = [], []
         for img in imgs_mat:
-            i, l = img.images(window_size)
+            i, l = img.images(window_size, post_processing=post_processing)
             imgs.append(i)
             labels.append(l)
 
         labels_np = np.array(labels)[0, :]
 
         imgs_np = np.array(imgs)
-        imgs_np = np.stack(imgs_np, axis=3)
+        imgs_np = np.stack(imgs_np, axis=-1)
 
         return imgs_np, labels_np

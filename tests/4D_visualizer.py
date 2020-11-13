@@ -11,8 +11,8 @@ from utils.specification import specs, multi_rho, cmap
 
 dataset = 'rational'
 dataset_type = 'DTW'
-base_pattern = True
-pattern_name = 'ABC'
+base_pattern = False
+pattern_name = ''
 dataset_name = dataset if not base_pattern else dataset+'_base'
 always_custom = True
 
@@ -49,6 +49,7 @@ len_generator = len(join(data_path, '*'))
 if len(interval) == 0 or ts_id is None:
     idx = choice(range(len_generator))
     file_nn = glob(join(data_path, 'test', '*'))[idx]
+    ts_id, interval = get_id_interval(file_nn.split('/')[-1])
 else:
     filename_to_search = f'X:{ts_id}_{interval[0]}-{interval[0]+window_size}|Y:{class_id}.npy'
     file_nn = glob(join(data_path, 'test', filename_to_search))[0]
@@ -88,7 +89,7 @@ if len(pattern_name) > 0:
 print(x.shape)
 classes = [i for i in range(specs[dataset_name]['y_dim'])]
 rhos = multi_rho
-gs2 = fig.add_gridspec(5, 15, top=0.68,
+gs2 = fig.add_gridspec(5, 5*len(classes), top=0.68,
                         hspace=0.05)
 for i in range(x.shape[2]):
 

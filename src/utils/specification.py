@@ -8,7 +8,7 @@ specs = {
         'x_dim': 150,
         'channels': 2,
         'ref_id': [0, 6],
-        'max_stream_id': [20, 5, 10],
+        'max_stream_id': [20, 5, 5],
         'repre_samples_25': ['X:0_840-865|Y:1.npy', 'X:0_685-710|Y:2.npy'],
         'repre_samples_15': ['X:0_845-860|Y:1.npy', 'X:0_690-705|Y:2.npy'],
         'repre_samples_5':  ['X:0_847-852|Y:1.npy', 'X:0_697-702|Y:2.npy'],

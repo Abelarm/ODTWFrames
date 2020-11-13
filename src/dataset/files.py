@@ -122,7 +122,7 @@ class ImageMatrix:
         if not ref_id:
             self.selected = selected
 
-    def images(self, window_size):
+    def images(self, window_size, post_processing=None):
 
         images = []
         labels = []
@@ -134,6 +134,12 @@ class ImageMatrix:
             if len([k for k, v in tmp_labels.items() if v == max_val[1]]) > 1:
                 print(f'Skipped the frame from {i}:{i + window_size} due to not trivial label')
                 continue
+
+            if post_processing == 'min':
+                tmp_img = np.min(tmp_img, axis=0)
+
+            if post_processing == 'last':
+                tmp_img = tmp_img[-1, :]
 
             images.append(tmp_img)
             labels.append(int(max_val[0]))

@@ -4,7 +4,7 @@ from tensorflow.keras.optimizers import Adam
 
 
 def get_model(x_dim, y_dim):
-    n_feature_maps = 32
+    n_feature_maps = 12
 
     input_layer = Input(x_dim)
     # BLOCK 1
@@ -66,33 +66,13 @@ def get_model(x_dim, y_dim):
     output_block_3 = add([shortcut_y, conv_z])
     output_block_3 = Activation('relu')(output_block_3)
 
-    # BLOCK 4
-
-    conv_x = Conv2D(filters=n_feature_maps * 4, kernel_size=8, padding='same')(output_block_3)
-    conv_x = BatchNormalization()(conv_x)
-    conv_x = Activation('relu')(conv_x)
-
-    conv_y = Conv2D(filters=n_feature_maps * 4, kernel_size=5, padding='same')(conv_x)
-    conv_y = BatchNormalization()(conv_y)
-    conv_y = Activation('relu')(conv_y)
-
-    conv_z = Conv2D(filters=n_feature_maps * 4, kernel_size=3, padding='same')(conv_y)
-    conv_z = BatchNormalization()(conv_z)
-
-    # expand channels for the sum
-    shortcut_y = Conv2D(filters=n_feature_maps * 4, kernel_size=1, padding='same')(output_block_3)
-    shortcut_y = BatchNormalization(name='shortcut_4')(shortcut_y)
-
-    output_block_4 = add([shortcut_y, conv_z])
-    output_block_4 = Activation('relu')(output_block_4)
-
     # FINAL
 
-    gap_layer = GlobalAveragePooling2D()(output_block_4)
+    gap_layer = GlobalAveragePooling2D()(output_block_3)
 
-    output_layer = Dense(y_dim, activation='softmax')(gap_layer)
+    output = Dense(y_dim, activation='softmax')(gap_layer)
 
-    model = Model(inputs=input_layer, outputs=output_layer)
+    model = Model(inputs=input_layer, outputs=output)
 
     return model
 

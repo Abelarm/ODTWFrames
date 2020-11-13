@@ -10,15 +10,15 @@ from utils.functions import get_id_interval, Paths
 from utils.specification import specs
 
 
-dataset = 'rational'
+dataset = 'gunpoint'
 dataset_type = 'DTW'
-base_pattern = True
+base_pattern = False
 pattern_name = 'ABC'
 dataset_name = dataset if not base_pattern else dataset+'_base'
 always_custom = True
 
-rho = 'multi'
-window_size = 1
+rho = '0.100'
+window_size = 25
 
 
 rho_name = 'rho '
@@ -28,11 +28,11 @@ if dataset_type == 'RP':
     rho = ''
 
 channels = specs[dataset_name]['channels']
-if len(pattern_name) > 0:
+if len(pattern_name) > 0 and base_pattern is True:
     channels = len(pattern_name)
 length = specs[dataset_name]['x_dim']
 
-paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, network_type='CNN', core_path='../')
 
 data_path = paths.get_data_path()
 beginning_path = paths.get_beginning_path()
@@ -124,7 +124,7 @@ f_axi_0.axvline(x=interval[1], linewidth=2, color='r')
 f_axi_0.axis(xmin=interval[0]-75, xmax=interval[1]+75)
 
 ref_ids = specs[dataset_name]['ref_id']
-if len(pattern_name) > 0:
+if len(pattern_name) > 0 and base_pattern is True:
     ref_ids = range(len(pattern_name))
 
 for i, c in enumerate(ref_ids):

@@ -7,11 +7,11 @@ from utils.functions import Paths
 from utils.specification import specs, cmap, multi_rho
 
 dataset = 'gunpoint'
-base_pattern = True
-pattern_name = 'ABC'
-rho = 'multi'
+base_pattern = False
+pattern_name = ''
+rho = '0.100'
 dataset_type = 'DTW'
-window_size = 5
+window_size = 25
 
 dataset_name = dataset if not base_pattern else dataset + '_base'
 length = specs[dataset_name]['x_dim']
@@ -37,7 +37,7 @@ elif dataset_type == 'RP':
     rho_name = 'RP'
 
 
-paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, core_path='../')
+paths = Paths(dataset, dataset_type, rho, window_size, base_pattern, pattern_name, network_type='CNN', core_path='../')
 beginning_path = paths.get_beginning_path()
 data_path = paths.get_data_path()
 
@@ -66,12 +66,13 @@ if base_pattern:
     suffix_rho = f'_base_{paths.pattern_name}'
 else:
     suffix_rho = ''
+
 if rho == 'multi':
     rho_arr = multi_rho
     starting_path_arr = [f'{prefix_path}/rho {rho}{suffix_rho}' for rho in rho_arr]
 else:
     rho_arr = [rho]
-    starting_path_arr = [beginning_path]
+    starting_path_arr = [f'{prefix_path}/rho {rho}{suffix_rho}' for rho in rho_arr]
 
 for idx, ref_id in enumerate(ref_ids):
     for rho, starting_path in zip(rho_arr, starting_path_arr):

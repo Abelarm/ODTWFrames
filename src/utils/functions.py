@@ -21,7 +21,6 @@ def get_id_interval(filename):
 
     return ts_id, interval
 
-
 class Singleton(type):
     _instances = WeakValueDictionary()
 
@@ -47,8 +46,8 @@ class Paths(metaclass=Singleton):
     rho_name = ''
     model_name = ''
 
-    def __init__(self, dataset, dataset_type, rho, window_size, base_pattern, pattern_name, column_scale=False,
-                 core_path='../../..'):
+    def __init__(self, dataset, dataset_type, rho, window_size, base_pattern, pattern_name, network_type,
+                 appendix_name=None, column_scale=False, post_processing=None, core_path='../../..'):
 
         self.dataset = dataset
         self.dataset_type = dataset_type
@@ -56,11 +55,27 @@ class Paths(metaclass=Singleton):
         self.window_size = window_size
         self.base_pattern = base_pattern
         self.pattern_name = pattern_name
-        self.column_scale = column_scale
+        self.post_processing = post_processing
+
+        if self.post_processing:
+            self.basic_model_name = f'{self.dataset_type}_{self.window_size}_{self.post_processing}'
+        else:
+            self.basic_model_name = f'{self.dataset_type}_{self.window_size}'
+
+        if self.post_processing:
+            self.model_name = f'{self.dataset_type}_{network_type}_{self.window_size}_{self.post_processing}'
+        else:
+            self.model_name = f'{self.dataset_type}_{network_type}_{self.window_size}'
+
+        if appendix_name is not None and len(appendix_name) > 0:
+            self.basic_model_name += f'_{appendix_name}'
+            self.model_name += f'_{appendix_name}'
+        if column_scale:
+            self.model_name += f'_{column_scale}'
+
         self.core_path = core_path
 
         self.get_rho_name()
-        self.get_model_name()
 
     def get_rho_name(self):
 
@@ -77,13 +92,12 @@ class Paths(metaclass=Singleton):
         self.rho_name = rho_name
         return rho_name
 
-    def get_model_name(self):
-        self.model_name = f'{self.dataset_type}_{self.window_size}'
+    def get_model_name(self, basic=False):
 
-        if self.column_scale:
-            self.model_name += '_column_scale'
-
-        return self.model_name
+        if basic:
+            return self.basic_model_name
+        else:
+            return self.model_name
 
     def get_beginning_path(self):
 
@@ -100,8 +114,7 @@ class Paths(metaclass=Singleton):
 
         beginning_path = self.get_beginning_path()
 
-        data_path = f'{beginning_path}/{self.rho_name}/{self.model_name}'
-        data_path = data_path.replace('_column_scale', '')
+        data_path = f'{beginning_path}/{self.rho_name}/{self.dataset_type}_{self.window_size}'
 
         return data_path
 
@@ -116,17 +129,17 @@ class Paths(metaclass=Singleton):
 
     def get_summaries_path(self):
 
-        path_dir = f'{self.core_path}/experiment_summaries/{self.dataset}/{self.rho_name}/{self.model_name}'
+        path_dir = f'{self.core_path}/experiment_summaries/{self.dataset}/{self.rho_name}/{self.basic_model_name}'
 
         return path_dir
 
     def get_error_path(self):
 
-        path_dir = f'{self.core_path}/error_analysis/{self.dataset}/{self.rho_name}/{self.model_name}'
+        path_dir = f'{self.core_path}/error_analysis/{self.dataset}/{self.rho_name}/{self.basic_model_name}'
 
         return path_dir
 
     def get_explain_path(self):
 
-        path_dir = f'{self.core_path}/Network_explain/{self.dataset}/{self.rho_name}/{self.model_name}'
+        path_dir = f'{self.core_path}/Network_explain/{self.dataset}/{self.rho_name}/{self.basic_model_name}'
         return path_dir

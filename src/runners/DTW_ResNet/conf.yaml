@@ -1,9 +1,9 @@
-dataset: 'rational'
+dataset: 'gunpoint'
 dataset_type: 'DTW'
-rho: 'multi'
+rho: '0.100'
 window_size: 5
 pattern_name: ''
-network_type: 'CNN'
+network_type: 'ResNet'
 appendix_name: null
 parameters:
   batch_size: 32

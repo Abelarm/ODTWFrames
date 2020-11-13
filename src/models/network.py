@@ -8,11 +8,13 @@ from tensorflow.keras.callbacks import ModelCheckpoint, ReduceLROnPlateau
 from sklearn.metrics import classification_report
 
 import matplotlib
+from tensorflow.keras.utils import plot_model
+
 matplotlib.use('Agg')
 
 from models.dataGenerator import DataGenerator
 from networkAnalysis.errors import analysis
-from networkAnalysis.explain import visualize_activation, variance_of_activations
+from networkAnalysis.explain import visualize_activation, variance_of_activations, t_sne
 from networkAnalysis.explainSample import explain_sample
 from networkAnalysis.studyPatterns import pattern_study
 from networkAnalysis.summary import plot_acc_loss, plot_roc_auc, plot_confusion_matrix, plot_class_probabilities
@@ -40,15 +42,15 @@ class Network:
     target_names = None
     pattern_name = None
 
-    def __init__(self, root_dir, x_dim, y_dim, model_name, experiment=None, pattern_name=''):
+    def __init__(self, root_dir, x_dim, y_dim, experiment=None, pattern_name=''):
 
         self.root_dir = root_dir
         self.x_dim = x_dim
         self.y_dim = y_dim
         self.experiment = experiment
-        self.model_name = model_name
         self.pattern_name = pattern_name
         self.path_class = Paths()
+        self.model_name = self.path_class.get_model_name()
 
         if re.search('rho (.*)/', self.root_dir, re.IGNORECASE):
             self.rho = re.search('rho (.*)/', self.root_dir, re.IGNORECASE).group(1)
@@ -72,7 +74,7 @@ class Network:
             self.test_generator, \
             self.test_generator_analysis = generator_function(self.root_dir, self.x_dim, self.y_dim,
                                                               base_pattern=self.base_pattern,
-                                                              always_custom=True,
+                                                              always_custom=False,
                                                               **self.parameters)
 
         self.model = model_function(self.x_dim, self.y_dim)
@@ -85,6 +87,11 @@ class Network:
                            metrics=['accuracy'])
 
         self.model.summary()
+        save_dir = self.path_class.get_summaries_path()
+        makedirs(save_dir, exist_ok=True)
+
+        dot_img_file = f'{save_dir}/model.png'
+        plot_model(self.model, to_file=dot_img_file, show_shapes=True)
 
     def train(self, epochs, save_path='.', from_checkpoint=False, lr=0):
 
@@ -111,7 +118,7 @@ class Network:
             print(f'Creating directories to {save_path}')
             makedirs(save_path)
 
-        filepath = join(save_path, self.model_name)
+        filepath = join(save_path, f'{self.model_name}.hdf5')
         checkpoint = ModelCheckpoint(filepath, monitor='val_loss', verbose=1,
                                      save_best_only=True, mode='min')
 
@@ -154,7 +161,7 @@ class Network:
 
     def evaluate(self, weights_dir):
 
-        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.load_weights(join(weights_dir, f'{self.model_name}.hdf5'))
         self.model.compile(optimizer='adam',
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
@@ -207,17 +214,14 @@ class Network:
 
     def summary_experiments(self, weights_dir, dataset_name):
 
-        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.load_weights(join(weights_dir, f'{self.model_name}.hdf5'))
         self.model.compile(optimizer='adam',
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
         rho_name = self.path_class.get_rho_name()
-        model_name = self.path_class.get_model_name()
+        model_name = self.path_class.get_model_name(basic=True)
         save_dir = self.path_class.get_summaries_path()
-
-        if 'RNN' in self.model_name:
-            save_dir += '_RNN'
 
         makedirs(save_dir, exist_ok=True)
 
@@ -246,18 +250,21 @@ class Network:
 
         window_size = 1 if 'multi' in rho_name and len(self.x_dim) != 4 else self.x_dim[1]
 
+        beginning_path = self.path_class.get_beginning_path()
+        dtw_path = self.path_class.get_data_path()
+
         if len(self.x_dim) > 2:
             # images
-            plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     rho_name, model_name, window_size, self.y_pred, save_dir)
+            plot_class_probabilities(self.test_generator_analysis, self.y_dim, model_name,
+                                     beginning_path, dtw_path, window_size, self.y_pred, save_dir)
         else:
             # timeseries
-            plot_class_probabilities(self.test_generator_analysis, self.y_dim, dataset_name,
-                                     rho_name, model_name, self.x_dim[0], self.y_pred, save_dir)
+            plot_class_probabilities(self.test_generator_analysis, self.y_dim, model_name,
+                                     beginning_path, dtw_path, self.x_dim[0], self.y_pred, save_dir)
 
     def error_analysis(self, weights_dir, dataset_name):
 
-        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.load_weights(join(weights_dir, f'{self.model_name}.hdf5'))
         self.model.compile(optimizer='adam',
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
@@ -283,13 +290,15 @@ class Network:
 
     def explain(self, weights_dir, dataset_name):
 
-        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.load_weights(join(weights_dir, f'{self.model_name}.hdf5'))
         self.model.compile(optimizer='adam',
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])
 
         save_dir = self.path_class.get_explain_path()
         makedirs(save_dir, exist_ok=True)
+
+        t_sne(self.model, self.test_generator_analysis, dataset_name, save_dir)
 
         samples = []
 
@@ -316,7 +325,7 @@ class Network:
 
     def check_pattern(self, weights_dir, dataset_name):
 
-        self.model.load_weights(join(weights_dir, self.model_name))
+        self.model.load_weights(join(weights_dir, f'{self.model_name}.hdf5'))
         self.model.compile(optimizer='adam',
                            loss='categorical_crossentropy',
                            metrics=['accuracy'])

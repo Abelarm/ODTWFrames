@@ -1,34 +1,50 @@
+import yaml
+
+from runners.trainer import train
+from utils.functions import Paths
 from utils.specification import specs
-from models.generator_proxy import create_generator
-from models.network import Network
-from models.OneDCNN.model import get_model, optimizer
+from models.ResNet1D.model_1M import get_model, optimizer
 
-dataset = 'gunpoint'
-core_path = '../../..'
-beginning_path = f'{core_path}/data/{dataset}/'
-dataset_type = 'TS'
-y_dim = specs[dataset]['y_dim']
-window_size = 5
-
-parameters = dict()
-parameters['batch_size'] = 32
-parameters['preprocessing'] = True
-
-# Add the following code anywhere in your machine learning file
-# experiment = Experiment(api_key="tIjRDRXwqoq2RgkME4epGXp1C",
-#                         project_name="DTW_CNN", workspace="luigig")
+with open('conf.yaml') as file:
+  conf_data = yaml.safe_load(file)
 
 
-NN = Network(f'{beginning_path}/{dataset_type}_{window_size}',
-             x_dim=(window_size, 1), y_dim=y_dim,
-             model_name=f'TS_1DCNN_{window_size}.hdf5', experiment=None)
+dataset = conf_data['dataset']
+window_size = conf_data['window_size']
+dataset_type = conf_data['dataset_type']
 
-NN.init_model(get_model, parameters, optimizer, create_generator)
-NN.train(epochs=60, save_path=f'{core_path}/Network_weights/{dataset}/{dataset_type}', from_checkpoint=True, lr='1e-05')
-NN.evaluate(weights_dir=f'{core_path}/Network_weights/{dataset}/{dataset_type}')
-NN.summary_experiments(weights_dir=f'{core_path}/Network_weights/{dataset}/{dataset_type}', dataset_name=dataset)
-NN.error_analysis(weights_dir=f'{core_path}/Network_weights/{dataset}/{dataset_type}', dataset_name=dataset)
+base_pattern = True if len(conf_data['pattern_name']) != 0 else False
+pattern_name = conf_data['pattern_name']
+
+network_type = '1DCNN'
+appendix_name = None
 
 
+paths = Paths(dataset, dataset_type, None, window_size, base_pattern=base_pattern, pattern_name=pattern_name,
+              network_type=network_type, appendix_name=appendix_name)
 
-# experiment.end()
+
+dataset_name = dataset if not base_pattern else dataset+'_base'
+y_dim = specs[dataset_name]['y_dim']
+x_dim = specs[dataset_name]['x_dim']
+channels = specs[dataset_name]['channels']
+
+if pattern_name == 'FULL':
+    channels = 5
+elif len(pattern_name) > 0:
+    channels = len(pattern_name)
+
+
+parameters = conf_data['parameters']
+column_scale = True if parameters['scaler_dim'] != [0, 1] else False
+
+project_name = f'{dataset_type}_{network_type}_{dataset}'
+
+train(dataset=dataset,
+      project_name=project_name,
+      paths=paths,
+      x_dim=(window_size, 1),
+      y_dim=y_dim,
+      get_model=get_model,
+      parameters=parameters,
+      optimizer=optimizer)

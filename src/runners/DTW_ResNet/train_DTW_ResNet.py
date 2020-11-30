@@ -47,7 +47,10 @@ train(dataset=dataset,
       y_dim=y_dim,
       get_model=get_model,
       parameters=parameters,
-      optimizer=optimizer)
+      optimizer=optimizer,
+      epochs=1,
+      from_checkpoint=True,
+      lr=0.5e-07)
 
 evaluate(dataset=dataset,
          project_name=project_name,

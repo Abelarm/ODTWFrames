@@ -93,7 +93,7 @@ class Network:
         dot_img_file = f'{save_dir}/model.png'
         plot_model(self.model, to_file=dot_img_file, show_shapes=True)
 
-    def train(self, epochs, save_path='.', from_checkpoint=False, lr=0):
+    def train(self, epochs, save_path='.', from_checkpoint=False, lr=5e-7):
 
         self.epochs = epochs
 
@@ -125,7 +125,7 @@ class Network:
         lr_reducer = ReduceLROnPlateau(factor=np.sqrt(0.1),
                                        cooldown=5,
                                        patience=5,
-                                       min_lr=5e-7)
+                                       min_lr=0.5e-7)
 
         callbacks_list = [checkpoint, lr_reducer]
 

@@ -126,7 +126,7 @@ def create_generator(root_dir, x_dim, y_dim, batch_size,
             color_mode="rgb" if x_dim[2] == 3 else "rgba",
             batch_size=batch_size,
             class_mode="categorical",
-            shuffle=True
+            shuffle=False
         )
 
         test_generator_analysis = datagen.flow_from_directory(

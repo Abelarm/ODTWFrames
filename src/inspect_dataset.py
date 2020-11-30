@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+
 from matplotlib import transforms
 
 from dataset.dataset import Dataset
@@ -6,7 +7,7 @@ from dataset.files import TimeSeries, RefPattern, DTW, RP
 from utils.functions import Paths
 from utils.specification import specs, cmap, multi_rho
 
-dataset = 'gunpoint'
+dataset = 'cbf'
 base_pattern = False
 pattern_name = ''
 rho = '0.100'

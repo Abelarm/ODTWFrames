@@ -4,8 +4,8 @@ from dataset.generator import generate
 from utils.functions import Paths
 from utils.specification import specs
 
-dataset_array = ['cbf']
-rho_array = ['0.100']
+dataset_array = ['gunpoint']
+rho_array = ['0.001']
 window_size_array = [5]
 base_pattern = False
 pattern_name = 'ABC' if base_pattern else ''

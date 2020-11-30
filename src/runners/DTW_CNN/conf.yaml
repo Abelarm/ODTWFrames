@@ -1,6 +1,6 @@
-dataset: 'cbf'
+dataset: 'gunpoint'
 dataset_type: 'DTW'
-rho: '0.100'
+rho: '0.500'
 window_size: 25
 pattern_name: ''
 network_type: 'CNN'

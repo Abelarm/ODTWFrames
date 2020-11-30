@@ -3,7 +3,7 @@ import yaml
 from runners.runner import evaluate
 from utils.functions import Paths
 from utils.specification import specs
-from models.ResNet.model import get_model, optimizer
+from models.ResNet.model_100k import get_model, optimizer
 
 with open('conf.yaml') as file:
     conf_data = yaml.safe_load(file)
@@ -17,7 +17,7 @@ base_pattern = True if len(conf_data['pattern_name']) != 0 else False
 pattern_name = conf_data['pattern_name']
 
 network_type = 'CNN'
-appendix_name = 'ResNet'
+appendix_name = 'ResNet_100k'
 
 paths = Paths(dataset, dataset_type, rho, window_size, base_pattern=base_pattern, pattern_name=pattern_name,
               network_type=network_type, appendix_name=appendix_name)
@@ -48,4 +48,4 @@ evaluate(dataset=dataset,
          evaluating=True,
          summary=True,
          error=False,
-         explain=True)
+         explain=False)

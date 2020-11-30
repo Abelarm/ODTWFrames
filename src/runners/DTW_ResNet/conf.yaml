@@ -1,7 +1,7 @@
 dataset: 'gunpoint'
 dataset_type: 'DTW'
-rho: '0.100'
-window_size: 5
+rho: '0.001'
+window_size: 15
 pattern_name: ''
 network_type: 'ResNet'
 appendix_name: null

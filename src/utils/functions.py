@@ -57,10 +57,14 @@ class Paths(metaclass=Singleton):
         self.pattern_name = pattern_name
         self.post_processing = post_processing
 
-        if self.post_processing:
-            self.basic_model_name = f'{self.dataset_type}_{self.window_size}_{self.post_processing}'
+        if 'CNN' not in network_type:
+
+            self.basic_model_name = f'{self.dataset_type}_{self.window_size}_{network_type}'
         else:
             self.basic_model_name = f'{self.dataset_type}_{self.window_size}'
+
+        if self.post_processing:
+            self.basic_model_name += f'_{self.post_processing}'
 
         if self.post_processing:
             self.model_name = f'{self.dataset_type}_{network_type}_{self.window_size}_{self.post_processing}'

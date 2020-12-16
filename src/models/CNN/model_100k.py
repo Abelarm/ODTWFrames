@@ -8,7 +8,7 @@ def get_model(x_dim, y_dim):
     # Define the input
     input_layer = Input(shape=x_dim)
 
-    conv_2 = Conv2D(64, 3, padding='same',
+    conv_2 = Conv2D(90, 3, padding='same',
                     kernel_initializer="he_normal",
                     kernel_regularizer=l2(0.1))(input_layer)
     batch_1 = BatchNormalization(momentum=0.999, epsilon=0.01)(conv_2)

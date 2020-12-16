@@ -8,12 +8,12 @@ def get_model(x_dim, y_dim):
     # Define the input
     input_layer = Input(shape=x_dim)
 
-    conv_1 = Conv2D(32, 3, padding='same', activation='relu',
+    conv_1 = Conv2D(64, 3, padding='same', activation='relu',
                     kernel_initializer="he_normal",
                     input_shape=x_dim)(input_layer)
     max_1 = MaxPooling2D()(conv_1)
 
-    conv_2 = Conv2D(64, 3, padding='same',
+    conv_2 = Conv2D(128, 3, padding='same',
                     kernel_initializer="he_normal",
                     kernel_regularizer=l2(0.1))(max_1)
     batch_1 = BatchNormalization(momentum=0.999, epsilon=0.01)(conv_2)
@@ -24,7 +24,7 @@ def get_model(x_dim, y_dim):
     else:
         max_2 = MaxPooling2D()(act_1)
 
-    conv_4 = Conv2D(128, 3, padding='same',
+    conv_4 = Conv2D(256, 3, padding='same',
                     kernel_initializer="he_normal")(max_2)
     batch_2 = BatchNormalization(momentum=0.999, epsilon=0.01)(conv_4)
     act_2 = Activation('relu')(batch_2)

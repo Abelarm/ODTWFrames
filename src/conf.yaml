@@ -1,10 +1,10 @@
-dataset: 'gunpoint'
-dataset_type: 'TS'
+dataset: 'cbf'
+dataset_type: 'DTW'
+rho: '0.100'
 window_size: 5
 pattern_name: ''
-rho: null
-network_type: '1DCNN'
-appendix_name: null
+network_type: 'ResNet'
+appendix_name: '1M'
 parameters:
   batch_size: 32
   scaler_dim: [0, 1]

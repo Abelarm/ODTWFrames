@@ -19,7 +19,8 @@ def generate(dataset,
              base_pattern=False,
              pattern_name='',
              path_class=None,
-             post_processing=None):
+             post_processing=None,
+             create_base_TS=False):
 
     if dataset == 'gunpoint':
         ref_name = 'REF_num-5.npy'
@@ -29,19 +30,8 @@ def generate(dataset,
         stream_name = f'STREAM_length-100_noise-5_warp-10_shift-10_outliers-0_cycles-per-label-10_set'
         if not path.isfile(f'{beginning_path}/{ref_name}') and \
                 not path.isfile(f'{beginning_path}/{stream_name}'):
-            print("pattern REF and pattern STREAM \n "
-                  "MUST ALREADY EXSITS must be one of the followings. \n "
-                  " \t 1) arma              ----> 8 classes \n "
-                  " \t 2) synthetic_control ----> 6 classes \n "
-                  " \t 3) sines             ----> 5 classes \n "
-                  " \t 4) kohlerlorenz      ----> 5 classes \n "
-                  " \t 5) cbf               ----> 3 classes \n "
-                  " \t 6) two_patterns      ----> 4 classes \n "
-                  " \t 7) rational          ----> 4 classes \n "
-                  " \t 8) seasonal          ----> 4 classes")
-            exit(1)
-        print("========= CREATING RAW DATA")
-        # generate_database(dataset)
+            print("========= CREATING RAW DATA")
+            generate_database(dataset)
 
     if base_pattern:
         ref_name = f'BASE_REF_len-{length}_noise-5_num-1.npy'
@@ -59,8 +49,9 @@ def generate(dataset,
     print("========= CALCULATING DISTANCE MATRIX")
     if rho == 'multi':
         for rho_val in multi_rho:
-            # compute_distance(mat_type, dataset, base_pattern, pattern_name, rho_val)
-            pass
+            compute_distance(mat_type, dataset, base_pattern, pattern_name, rho_val)
+    else:
+        compute_distance(mat_type, dataset, base_pattern, pattern_name, rho)
 
     save_path_image = path_class.get_data_path()
     dtw_starting_path = path_class.get_dtw_path()
@@ -78,7 +69,7 @@ def generate(dataset,
     ref_ids = ds.create_image_dataset(save_path_image, base_pattern=base_pattern,
                                       post_processing=post_processing)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3)
-    if not path.exists(f'{beginning_path}/TS_{window_size}/train'):
+    if not path.exists(f'{beginning_path}/TS_{window_size}/train') and create_base_TS:
         print('====== CREATING SERIES DATASET ====== ')
         ds.create_series_dataset(f'{beginning_path}/TS_{window_size}/train')
 
@@ -95,7 +86,7 @@ def generate(dataset,
     ds.create_image_dataset(save_path_image, base_pattern=base_pattern,
                             post_processing=post_processing)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3)
-    if not path.exists(f'{beginning_path}/TS_{window_size}/validation'):
+    if not path.exists(f'{beginning_path}/TS_{window_size}/validation') and create_base_TS:
         print('====== CREATING SERIES DATASET ====== ')
         ds.create_series_dataset(f'{beginning_path}/TS_{window_size}/validation')
 
@@ -115,6 +106,6 @@ def generate(dataset,
     ds.create_image_dataset(save_path_image, base_pattern=base_pattern, ref_ids=ref_ids,
                             post_processing=post_processing)
     # ds.create_series_image_dataset(f'{beginning_path}/rho {rho}/CRNN_DTW_{window_size}', 3, ref_ids)
-    if not path.exists(f'{beginning_path}/TS_{window_size}/test'):
+    if not path.exists(f'{beginning_path}/TS_{window_size}/test') and create_base_TS:
         print('====== CREATING SERIES DATASET ====== ')
         ds.create_series_dataset(f'{beginning_path}/TS_{window_size}/test')

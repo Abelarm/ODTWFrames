@@ -13,7 +13,7 @@ from utils.specification import specs
 dataset = 'gunpoint'
 dataset_type = 'DTW'
 base_pattern = False
-pattern_name = 'ABC'
+pattern_name = ''
 dataset_name = dataset if not base_pattern else dataset+'_base'
 always_custom = True
 

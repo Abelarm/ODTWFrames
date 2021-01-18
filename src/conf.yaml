@@ -5,8 +5,11 @@ window_size: 5
 pattern_name: ''
 network_type: 'ResNet'
 appendix_name: '1M'
+
 parameters:
   batch_size: 32
   scaler_dim: [0, 1]
   preprocessing: True
   reload_images: False
+
+epochs: 100

@@ -42,6 +42,11 @@ elif dataset_type == 'TS':
 
 get_model, optimizer = get_model_function(dataset_type, network_type, appendix_name)
 
+if network_type == 'ResNet':
+    explain = False
+else:
+    explain = True
+
 evaluate(dataset=dataset,
          project_name=project_name,
          paths=paths,
@@ -52,5 +57,5 @@ evaluate(dataset=dataset,
          optimizer=optimizer,
          evaluating=True,
          summary=True,
-         error=False,
-         explain=False)
+         error=True,
+         explain=explain)

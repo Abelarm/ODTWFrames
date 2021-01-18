@@ -10,8 +10,8 @@ from dataset.files import TimeSeries, RefPattern, DTW
 from utils.specification import specs, cmap
 
 dataset_array = ['cbf', 'rational', 'gunpoint']
-base_pattern = True
-pattern_name = 'AB'
+base_pattern = False
+pattern_name = ''
 rho = '0.100'
 num_sample = 15
 

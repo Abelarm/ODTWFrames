@@ -1,3 +1,6 @@
+# add aritzovich@gmail.com github
+# add ioregi01@gmail.com
+
 import yaml
 
 from models.get_models import get_model_function
@@ -33,6 +36,10 @@ elif len(pattern_name) > 0:
     channels = len(pattern_name)
 
 parameters = conf_data['parameters']
+
+batch_size = parameters['batch_size']
+epochs = conf_data['epochs']
+
 column_scale = True if parameters['scaler_dim'] != [0, 1] else False
 
 if dataset_type == 'DTW':
@@ -49,4 +56,5 @@ train(dataset=dataset,
       y_dim=y_dim,
       get_model=get_model,
       parameters=parameters,
-      optimizer=optimizer)
+      optimizer=optimizer,
+      epochs=epochs)

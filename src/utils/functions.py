@@ -21,6 +21,7 @@ def get_id_interval(filename):
 
     return ts_id, interval
 
+
 class Singleton(type):
     _instances = WeakValueDictionary()
 
@@ -34,7 +35,6 @@ class Singleton(type):
 
 
 class Paths(metaclass=Singleton):
-
     dataset = None
     dataset_type = None
     rho = None

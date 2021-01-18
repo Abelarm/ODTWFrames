@@ -115,8 +115,4 @@ for idx, img_class in enumerate(imgs):
 
     fig.colorbar(img, cmap=cmap, ax=f_axi)
 
-# fig.subplots_adjust(right=0.90)
-# cbar_ax = fig.add_axes([0.91, 0.12, 0.01, 0.64])
-# fig.colorbar(img, cmap='plasma', cax=cbar_ax)
-
 plt.show()

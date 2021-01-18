@@ -9,8 +9,8 @@ from dataset.files import TimeSeries, RefPattern, DTW
 from utils.specification import specs, cmap
 
 dataset = 'cbf'
-base_pattern = True
-pattern_name = 'AB'
+base_pattern = False
+pattern_name = ''
 rho = '0.100'
 num_sample = 7
 
@@ -131,9 +131,9 @@ for idx, dtw in enumerate(dtws):
         val_min = ref.lab_patterns[dtw.from_pattern_idx+1]['pattern'].min()
         val_max = ref.lab_patterns[dtw.from_pattern_idx+1]['pattern'].max()
         f_axi_1.set_xlim(-val_max, -val_min)
-    f_axi_1.set_yticks([0, 100])
-    f_axi_1.set_xlim(-val_max, -val_min)
-    f_axi_1.set_xticks([])
+        f_axi_1.set_yticks([0, 100])
+        f_axi_1.set_xlim(-val_max, -val_min)
+        f_axi_1.set_xticks([])
     if idx != len(dtws)-1:
         f_axi_1.set_xticks([])
         f_axi_1.set_yticks([])

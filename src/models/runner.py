@@ -14,14 +14,17 @@ random.seed(42)
 
 
 def train(dataset, project_name, paths, x_dim, y_dim, get_model, parameters, optimizer,
-          epochs=100, from_checkpoint=False, lr=0):
+          epochs=100, from_checkpoint=False, lr=0, track_experiment=False):
 
     data_path = paths.get_data_path()
     weight_dir = paths.get_weight_dir()
 
-    experiment = Experiment(api_key="tIjRDRXwqoq2RgkME4epGXp1C",
-                            project_name=project_name, workspace="luigig",
-                            disabled=False)
+    if track_experiment:
+        experiment = Experiment(api_key="",
+                                project_name=project_name, workspace="",
+                                disabled=True)
+    else:
+        experiment = None
 
     NN = Network(data_path, x_dim=x_dim, y_dim=y_dim, experiment=experiment)
 

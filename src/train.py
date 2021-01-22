@@ -1,6 +1,3 @@
-# add aritzovich@gmail.com github
-# add ioregi01@gmail.com
-
 import yaml
 
 from models.get_models import get_model_function

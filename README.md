@@ -56,9 +56,8 @@ post_processing = ''  # do not change
 6) two_patterns      ----> 4 classes
 7) rational          ----> 4 classes
 8) seasonal          ----> 4 classes
+9) gunpoint          ----> 4 classes
 ```
-**GUNPOINT:** For using the dataset gunpoint create the dataset as described in 
-_INSERT LINK OF PAPER OF GUNPOINT CREATION_
     
 - ##### 1b) Dataset inspection
     

@@ -1,0 +1,3 @@
+[submodule "time_series_augmentation"]
+	path = time_series_augmentation
+	url = https://github.com/uchidalab/time_series_augmentation.git

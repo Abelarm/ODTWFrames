@@ -1,0 +1,16 @@
+numpy
+matplotlib
+scikit-learn
+tqdm
+Pillow
+scipy
+patsy
+statsmodels
+PyYAML
+pandas
+sktime
+torch
+torchmetrics
+torchvision
+seaborn
+pytorch-lightning

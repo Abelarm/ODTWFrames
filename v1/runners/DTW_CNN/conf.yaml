@@ -1,0 +1,10 @@
+dataset: 'gunpoint'
+dataset_type: 'DTW'
+rho: '0.100'
+window_size: 5
+pattern_name: ''
+parameters:
+  batch_size: 32
+  scaler_dim: [0, 1]
+  preprocessing: True
+  reload_images: False

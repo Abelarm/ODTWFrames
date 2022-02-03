@@ -1,0 +1,10 @@
+dataset: 'rational'
+dataset_type: 'DTW'
+rho: 'multi'
+window_size: 5
+pattern_name: 'ABC'
+parameters:
+  batch_size: 32
+  scaler_dim: [0, 1]
+  preprocessing: True
+  reload_images: False

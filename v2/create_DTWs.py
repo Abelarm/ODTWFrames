@@ -166,7 +166,7 @@ def create_dtws(dataset_name, rho, num_reference, tot_STS, num_process):
         np.savez_compressed(os.path.join(save_path, f'DTWs_{type}.npz'), STS=STS[:, 10:], STS_labels=STS_labels[:, 10:],
                             DTWs=full_DTWs)
         print("Saving DONE")
-    plt.imshow(full_DTWs[0, :, :, 0], aspect='auto', origin='lower')
+    plt.imshow(full_DTWs[0, :, 10:, 0], aspect='auto', origin='lower')
     plt.show()
 
 

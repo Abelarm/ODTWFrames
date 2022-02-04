@@ -102,7 +102,8 @@ class dtwDataModule(pl.LightningDataModule):
 
         print("DTW TEST COMPLETED")
 
-        self.channels = self.channels = np.unique(self.dtw_train.labels).shape[0]
+        self.labels_size = np.unique(self.dtw_train.labels).shape[0]
+        self.channels = self.dtw_train.dtws.shape[-1]
 
         print("Done")
 

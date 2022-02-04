@@ -67,7 +67,7 @@ def _dtw(x, y):
 def compute_odtw_distance_matrix(ref, stream, rho, dist="euclidean"):
     """
     Compute distance matrix.
-    :param refmat: reference pattern
+    :param ref: reference pattern
     :param stream: stream time series
     :param rho: memory
     :return: distance matrices

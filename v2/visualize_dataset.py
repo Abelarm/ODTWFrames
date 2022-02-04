@@ -24,8 +24,11 @@ def visualize(dataset_name):
             random_test_idx = np.random.choice(range(len(dtw_test)), 1)[0]
 
             random_label = np.random.choice(dtw_train.shape[-1], 1)[0]
-            train_label_idx = np.argwhere(labels_train[random_train_idx] == random_label)[dtw_train.shape[1]: dtw_train.shape[1]*2]
-            test_label_idx = np.argwhere(labels_test[random_test_idx] == random_label)[dtw_train.shape[1]: dtw_train.shape[1]*2]
+            train_label_idx = np.argwhere(labels_train[random_train_idx] == random_label)
+            test_label_idx = np.argwhere(labels_test[random_test_idx] == random_label)
+
+            train_label_idx = train_label_idx[dtw_train.shape[1]: dtw_train.shape[1] * 2]
+            test_label_idx = test_label_idx[dtw_train.shape[1]: dtw_train.shape[1]*2]
 
             if len(test_label_idx) > 0 and len(train_label_idx) > 0:
                 break

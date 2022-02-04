@@ -42,10 +42,13 @@ def train_network(dataset_name, mode, window_size, batch_size, lr, max_epochs, n
 
     # Init our model
     if mode == 'sts':
-        model = resnet_model(channels=dataMod.sts_train.sts.shape[-1], labels=dataMod.channels,
+        model = resnet_model(channels=dataMod.sts_train.sts.shape[-1],
+                             labels=dataMod.labels_size,
                              window_size=window_size, lr=lr)
     elif mode == 'dtw':
-        model = resnet_model(ref_size=dataMod.dtw_test.dtws.shape[1], channels=dataMod.channels,
+        model = resnet_model(ref_size=dataMod.dtw_test.dtws.shape[1],
+                             channels=dataMod.channels,
+                             labels=dataMod.labels_size,
                              window_size=window_size,
                              lr=lr)
 

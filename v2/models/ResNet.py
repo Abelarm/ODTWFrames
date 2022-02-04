@@ -49,10 +49,11 @@ class ResidualBlock(LightningModule):
 
 class ResNet_DTW(LightningModule):
 
-    def __init__(self, ref_size, channels, window_size, lr=0.0001):
+    def __init__(self, ref_size, channels, labels, window_size, lr=0.0001):
         super().__init__()
 
         self.channels = channels
+        self.labels = labels
         self.lr = lr
 
         n_feature_maps = 32
@@ -65,24 +66,24 @@ class ResNet_DTW(LightningModule):
             nn.AvgPool2d((ref_size, window_size))
         )
 
-        self.classifier = nn.Linear(in_features=128, out_features=channels)
+        self.classifier = nn.Linear(in_features=128, out_features=labels)
 
         self.train_acc = torchmetrics.Accuracy()
-        self.train_f1 = torchmetrics.F1(num_classes=channels,
+        self.train_f1 = torchmetrics.F1(num_classes=labels,
                                         average="micro")
-        self.train_auroc = torchmetrics.AUROC(num_classes=channels,
+        self.train_auroc = torchmetrics.AUROC(num_classes=labels,
                                               average="macro")
 
         self.val_acc = torchmetrics.Accuracy()
-        self.val_f1 = torchmetrics.F1(num_classes=channels,
+        self.val_f1 = torchmetrics.F1(num_classes=labels,
                                       average="micro")
-        self.val_auroc = torchmetrics.AUROC(num_classes=channels,
+        self.val_auroc = torchmetrics.AUROC(num_classes=labels,
                                             average="macro")
 
         self.test_acc = torchmetrics.Accuracy()
-        self.test_f1 = torchmetrics.F1(num_classes=channels,
+        self.test_f1 = torchmetrics.F1(num_classes=labels,
                                        average="micro")
-        self.test_auroc = torchmetrics.AUROC(num_classes=channels,
+        self.test_auroc = torchmetrics.AUROC(num_classes=labels,
                                              average="macro")
 
     def forward(self, x):

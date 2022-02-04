@@ -1,14 +1,14 @@
 import argparse
 
 import numpy as np
+from sktime.clustering import TimeSeriesKMedoids
 from sktime.datasets import load_UCR_UEA_dataset
 from sklearn.model_selection import train_test_split
 from scipy.spatial import distance_matrix
 import os
 import matplotlib.pyplot as plt
 
-
-def download_dataset(dataset_name):
+def download_dataset(dataset_name, distance_type='euclidean', num_cluster=1):
     X, Y = load_UCR_UEA_dataset(name=dataset_name,
                                 return_X_y=True)
     train_size = 0.9
@@ -47,21 +47,36 @@ def download_dataset(dataset_name):
         full_array_test[j, :, :] = sub_array.transpose()
         Y_test.append(Y[i])
     Y_test = np.array(Y_test)
-    medoids = np.zeros((len(np.unique(Y_train)), shapes[2], shapes[1]))
-    medoids_idxs = np.zeros(len(np.unique(Y_train)))
+    medoids = np.zeros((len(np.unique(Y_train)) * num_cluster, shapes[2], shapes[1]))
+    medoids_idxs = np.zeros(len(np.unique(Y_train)) * num_cluster)
     for i, y in enumerate(np.unique(Y_train)):
         index = np.argwhere(Y_train == y)
         sub_array = full_array_train[index.reshape(-1)]
+        if distance_type == 'euclidean':
+            shapes = sub_array.shape
+            new_shapes = (shapes[0], shapes[1] * shapes[2])
+            medoid_idx = np.argmin(distance_matrix(sub_array.reshape(new_shapes), sub_array.reshape(new_shapes)).sum(0))
+            print(f'For class {y} medoid_idx: {index[medoid_idx]}')
 
-        shapes = sub_array.shape
-        new_shapes = (shapes[0], shapes[1] * shapes[2])
-        medoid_idx = np.argmin(distance_matrix(sub_array.reshape(new_shapes), sub_array.reshape(new_shapes)).sum(0))
-        print(f'For class {y} medoid_idx: {index[medoid_idx]}')
+            medoids[i] = sub_array[medoid_idx]
+            medoids_idxs[i] = index[medoid_idx]
+        if distance_type == 'cluster':
+            k_medoid = TimeSeriesKMedoids(n_clusters=num_cluster, init_algorithm="forgy", metric="dtw")
+            k_medoid.fit(np.squeeze(sub_array))
+            for med in k_medoid.get_centers():
+                medoids[i] = np.expand_dims(med, axis=1)
+                for idx, tmp_array in enumerate(np.squeeze(sub_array)):
+                    if all(tmp_array == med):
+                        medoids_idxs[i] = index[idx]
+                        break
+                print(f'For class {y} medoid_idx: {index[idx]}')
 
-        medoids[i] = sub_array[medoid_idx]
-        medoids_idxs[i] = index[medoid_idx]
     save_path = os.path.join("data", dataset_name)
+    if distance_type == 'cluster':
+        save_path = f'{save_path}_n_cluster_{num_cluster}'
+
     os.makedirs(save_path, exist_ok=True)
+
     np.savez_compressed(os.path.join(save_path, 'DB.npz'),
                         medoids=medoids, medoids_idxs=medoids_idxs,
                         X_train=full_array_train, Y_train=Y_train,
@@ -118,5 +133,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download the data from the UCR_UEA database')
     parser.add_argument('--dataset_name', type=str,
                         help='Name of the dataset to be download')
+    parser.add_argument('--distance_type', type=str, default=None,
+                        help='Name of the distance for calculating the clusters')
+    parser.add_argument('--num_cluster', type=int, default=2,
+                        help='Name of the distance for calculating the clusters')
     args = parser.parse_args()
-    download_dataset(dataset_name=args.dataset_name)
+    download_dataset(dataset_name=args.dataset_name, distance_type=args.distance_type, num_cluster=args.num_cluster)

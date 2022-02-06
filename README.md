@@ -6,9 +6,14 @@ Run `pip install -r requirements.txt`
 
 ### Download the dataset
 
-Select a v2 TS from the [UCR_UEA database](https://www.timeseriesclassification.com/index.php)
+Select a dataset TS from the [UCR_UEA database](https://www.timeseriesclassification.com/index.php)
 
 `python v2/download_data.py --dataset_name <dataset_name>`
+
+If you want to calculate more medoids for each class you can run the command adding those parameters:
+`--distance_type cluster  --num_cluster <x>`
+
+it will calculate `x` medoids for each class 
 
 
 ### Create the DTWs

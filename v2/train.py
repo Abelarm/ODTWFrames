@@ -86,6 +86,7 @@ def train_network(dataset_name, mode, window_size, batch_size, lr, max_epochs, n
         model = resnet_model.load_from_checkpoint(path,
                                                   ref_size=dataMod.dtw_test.dtws.shape[1],
                                                   channels=dataMod.channels,
+                                                  labels=dataMod.labels_size,
                                                   window_size=window_size)
 
     model.eval()

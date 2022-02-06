@@ -4,6 +4,7 @@ experiment_summaries
 Network_weights
 src/dataset/generate_files/Synthetic.databases.pdf
 src/runners/DTW_CNN/multi_evaluate.py
+*.zip
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

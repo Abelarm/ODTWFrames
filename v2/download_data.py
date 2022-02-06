@@ -65,11 +65,9 @@ def download_dataset(dataset_name, distance_type='euclidean', num_cluster=1):
             k_medoid.fit(np.squeeze(sub_array))
             for med in k_medoid.get_centers():
                 medoids[i] = np.expand_dims(med, axis=1)
-                for idx, tmp_array in enumerate(np.squeeze(sub_array)):
-                    if all(tmp_array == med):
-                        medoids_idxs[i] = index[idx]
-                        break
-                print(f'For class {y} medoid_idx: {index[idx]}')
+                selected_idx = np.where(np.all(np.squeeze(sub_array) == med, axis=1))[0][0]
+                medoids_idxs[i] = index[selected_idx]
+                print(f'For class {y} medoid_idx: {index[selected_idx]}')
 
     save_path = os.path.join("data", dataset_name)
     if distance_type == 'cluster':

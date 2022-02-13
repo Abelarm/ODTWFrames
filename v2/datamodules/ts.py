@@ -105,6 +105,7 @@ class stsDataModule(pl.LightningDataModule):
         print("STS TEST COMPLETED")
 
         self.labels_size = np.unique(self.sts_train.labels).shape[0]
+        self.channels = self.sts_train.sts.shape[-1]
 
         print("Done")
 

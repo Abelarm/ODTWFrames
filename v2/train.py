@@ -14,43 +14,53 @@ from tqdm import tqdm
 import sys
 
 from datamodules.ts import stsDataModule
-from models.ResNet_1d import ResNet_TS
+from models.architectures.DTW.CNN import CNN_DTW
+from models.architectures.TS.CNN import CNN_TS
+from models.architectures.TS.RNN import RNN_TS
+from models.architectures.TS.ResNet_1d import ResNet_TS
+from models.model_wrapper import model_wrapper
 
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('univariate'))
 sys.path.insert(0, os.path.abspath('time_series_augmentation'))
 
 from datamodules.dtw import dtwDataModule
-from models.ResNet import ResNet_DTW
+from models.architectures.DTW.ResNet import ResNet_DTW
 from v1.networkAnalysis.summary import plot_roc_auc, plot_confusion_matrix
 
 
-def train_network(dataset_name, mode, window_size, batch_size, lr, max_epochs, num_workers, PATH):
+def train_network(dataset_name, mode, architecture, window_size, batch_size, lr, max_epochs, num_workers, PATH):
     if mode == 'sts':
         root_dir = f"data/{dataset_name}/TS"
         datamodule = stsDataModule
-        resnet_model = ResNet_TS
+        if architecture == 'resnet':
+            arch_model = ResNet_TS
+        elif architecture == 'rnn':
+            arch_model = RNN_TS
+        elif architecture == 'cnn':
+            arch_model = CNN_TS
+
     elif mode == 'dtw':
         root_dir = f"data/{dataset_name}/DTW"
         datamodule = dtwDataModule
-        resnet_model = ResNet_DTW
+        if architecture == 'resnet':
+            arch_model = ResNet_DTW
+        elif architecture == 'cnn':
+            arch_model = CNN_DTW
 
-    AVAIL_GPUS = min(1, torch.cuda.device_count())
+    root_dir = f"{root_dir}/{architecture}"
 
-    dataMod = datamodule(f'data/{dataset_name}', num_workers=num_workers, batch_size=batch_size)
+    AVAIL_GPUS = min(0, torch.cuda.device_count())
+
+    dataMod = datamodule(f'data/{dataset_name}', num_workers=0, batch_size=batch_size)
     dataMod.prepare_data(window_size=window_size)
 
-    # Init our model
-    if mode == 'sts':
-        model = resnet_model(channels=dataMod.sts_train.sts.shape[-1],
-                             labels=dataMod.labels_size,
-                             window_size=window_size, lr=lr)
-    elif mode == 'dtw':
-        model = resnet_model(ref_size=dataMod.dtw_test.dtws.shape[1],
-                             channels=dataMod.channels,
-                             labels=dataMod.labels_size,
-                             window_size=window_size,
-                             lr=lr)
+    model = model_wrapper(model_architecture=arch_model,
+                          ref_size=dataMod.dtw_test.dtws.shape[1] if mode == 'dtw' else None,
+                          channels=dataMod.channels,
+                          labels=dataMod.labels_size,
+                          window_size=window_size,
+                          lr=lr)
 
     lr_monitor = LearningRateMonitor(logging_interval='step')
     # Initialize a trainer
@@ -77,17 +87,12 @@ def train_network(dataset_name, mode, window_size, batch_size, lr, max_epochs, n
     else:
         path = PATH
 
-    if mode == 'sts':
-        model = resnet_model.load_from_checkpoint(path,
-                                                  channels=dataMod.sts_train.sts.shape[-1],
-                                                  labels=dataMod.channels,
-                                                  window_size=window_size)
-    elif mode == 'dtw':
-        model = resnet_model.load_from_checkpoint(path,
-                                                  ref_size=dataMod.dtw_test.dtws.shape[1],
-                                                  channels=dataMod.channels,
-                                                  labels=dataMod.labels_size,
-                                                  window_size=window_size)
+    model = model_wrapper.load_from_checkpoint(path,
+                                               model_architecture=architecture,
+                                               ref_size=dataMod.dtw_test.dtws.shape[1] if mode == 'dtw' else None,
+                                               channels=dataMod.channels,
+                                               labels=dataMod.labels_size,
+                                               window_size=window_size)
 
     model.eval()
     model.freeze()
@@ -134,6 +139,9 @@ if __name__ == '__main__':
     parser.add_argument('--mode', type=str, required=True, choices=['dtw', 'sts'],
                         help='Name of the dataset from which create the DTWs')
 
+    parser.add_argument('--architecture', type=str, required=True, choices=['resnet', 'cnn', 'rnn'],
+                        help='Name of the architecture from which create the model')
+
     parser.add_argument('--window_size', type=int, default=5,
                         help='Window size used for training')
 
@@ -154,6 +162,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    train_network(dataset_name=args.dataset_name, mode=args.mode, window_size=args.window_size,
+    train_network(dataset_name=args.dataset_name, mode=args.mode, architecture=args.architecture,
+                  window_size=args.window_size,
                   batch_size=args.batch_size, lr=args.lr, max_epochs=args.max_epochs,
                   num_workers=args.num_workers, PATH=args.PATH)

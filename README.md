@@ -42,7 +42,9 @@ use `c` for cotinuing visualizing another example and `b` for stopping
 
 For training the network use:
 
-`python v2/train.py --dataset_name <dataset_name> --mode ['dtw', 'sts']`
+`python v2/train.py --dataset_name <dataset_name> --mode ['dtw', 'sts'] --architecture ['resnet', 'cnn', 'rnn']`
+
+for `DTW` mode only the `cnn` and `resnet` are available.
 
 all the results and checkpoints will be created under the folder `data/<dataset_name>`
 

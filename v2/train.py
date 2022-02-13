@@ -52,7 +52,7 @@ def train_network(dataset_name, mode, architecture, window_size, batch_size, lr,
 
     AVAIL_GPUS = min(0, torch.cuda.device_count())
 
-    dataMod = datamodule(f'data/{dataset_name}', num_workers=0, batch_size=batch_size)
+    dataMod = datamodule(f'data/{dataset_name}', num_workers=num_workers, batch_size=batch_size)
     dataMod.prepare_data(window_size=window_size)
 
     model = model_wrapper(model_architecture=arch_model,
@@ -88,7 +88,7 @@ def train_network(dataset_name, mode, architecture, window_size, batch_size, lr,
         path = PATH
 
     model = model_wrapper.load_from_checkpoint(path,
-                                               model_architecture=architecture,
+                                               model_architecture=arch_model,
                                                ref_size=dataMod.dtw_test.dtws.shape[1] if mode == 'dtw' else None,
                                                channels=dataMod.channels,
                                                labels=dataMod.labels_size,

@@ -50,9 +50,9 @@ def train_network(dataset_name, mode, architecture, window_size, batch_size, lr,
 
     root_dir = f"{root_dir}/ws_{window_size}/{architecture}"
 
-    AVAIL_GPUS = min(0, torch.cuda.device_count())
+    AVAIL_GPUS = max(0, torch.cuda.device_count())
 
-    dataMod = datamodule(f'data/{dataset_name}', num_workers=num_workers, batch_size=batch_size)
+    dataMod = datamodule(f'data/{dataset_name}', num_workers=0, batch_size=batch_size)
     dataMod.prepare_data(window_size=window_size)
 
     model = model_wrapper(model_architecture=arch_model,
@@ -120,12 +120,12 @@ def evaluate_trained_network(dataMod, batch_size, model, root_dir):
     y_pred = np.array(y_pred)
     y_true = np.array(y_true)
     print('Classification Report')
-    target_names = [str(i) for i in range(dataMod.channels)]
+    target_names = [str(i) for i in range(dataMod.labels_size)]
     print(classification_report(y_true, np.argmax(y_pred, axis=-1)))
     save_path = f"{root_dir}/net_results/"
     os.makedirs(save_path, exist_ok=True)
-    plot_roc_auc(dataMod.channels,
-                 F.one_hot(torch.tensor(y_true), num_classes=dataMod.channels).numpy(), y_pred,
+    plot_roc_auc(dataMod.labels_size,
+                 F.one_hot(torch.tensor(y_true), num_classes=dataMod.labels_size).numpy(), y_pred,
                  save_path)
     plot_confusion_matrix(y_true, y_pred, target_names, save_path)
 

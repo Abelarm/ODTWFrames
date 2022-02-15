@@ -24,18 +24,12 @@ class RNN_TS(LightningModule):
         return self.n_feature_maps * 4 * self.window_size
 
     def forward(self, x):
-        x = torch.permute(x, (0, 2, 1)).float()
+        x = torch.permute(x, (0, 2, 1))
 
-        hidden = (torch.randn(1, x.shape[0], self.n_feature_maps).cuda(),
-                  torch.randn(1, x.shape[0], self.n_feature_maps).cuda())
-
-        output, _ = self.lstm_1(x, hidden)
+        output, _ = self.lstm_1(x)
         ret_bn1 = self.bn_1(output.permute(0, 2, 1))
 
-        hidden_2 = (torch.randn(1, x.shape[0], self.n_feature_maps*2).cuda(),
-                    torch.randn(1, x.shape[0], self.n_feature_maps*2).cuda())
-
-        output, (h_t2, _) = self.lstm_2(ret_bn1.permute(0, 2, 1), hidden_2)
+        output, (h_t2, _) = self.lstm_2(ret_bn1.permute(0, 2, 1))
         ret_bn2 = self.bn_2(output.permute(0, 2, 1))
         ret_lin = self.lin(ret_bn2.view(ret_bn2.shape[0], -1))
         return self.relu(ret_lin)

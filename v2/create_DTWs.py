@@ -10,7 +10,7 @@ from tqdm import tqdm
 import sys
 
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('univariate'))
+sys.path.insert(0, os.path.abspath('v1'))
 sys.path.insert(0, os.path.abspath('time_series_augmentation'))
 
 from v1.dataset.generate_files.utils.distance import compute_odtw_distance_matrix

@@ -21,7 +21,7 @@ from models.architectures.TS.ResNet_1d import ResNet_TS
 from models.model_wrapper import model_wrapper
 
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('univariate'))
+sys.path.insert(0, os.path.abspath('v1'))
 sys.path.insert(0, os.path.abspath('time_series_augmentation'))
 
 from datamodules.dtw import dtwDataModule
@@ -48,7 +48,7 @@ def train_network(dataset_name, mode, architecture, window_size, batch_size, lr,
         elif architecture == 'cnn':
             arch_model = CNN_DTW
 
-    root_dir = f"{root_dir}/{architecture}"
+    root_dir = f"{root_dir}/ws_{window_size}/{architecture}"
 
     AVAIL_GPUS = min(0, torch.cuda.device_count())
 

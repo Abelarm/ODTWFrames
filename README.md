@@ -49,10 +49,10 @@ for `DTW` mode only the `cnn` and `resnet` are available.
 all the results and checkpoints will be created under the folder `data/<dataset_name>`
 
 you can modify the following parameters:
-- `window_size` default value `15`
+- `window_size` default value `5`
 - `batch_size` default value `128`
 - `lr` default value `5e-03`
-- `max_epochs` default value `10`
+- `max_epochs` default value `15`
 - `num_workers` default value `6`
 - `PATH` default value `None` if a path to a checkpoint is provided the network won't be trained and only evaluated
 

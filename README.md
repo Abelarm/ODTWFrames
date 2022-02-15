@@ -3,6 +3,8 @@
 ### Install requirements
 Run `pip install -r requirements.txt`
 
+#### Pull submodule
+For pulling submodules `git submodule update --init --recursive`
 
 ### Download the dataset
 

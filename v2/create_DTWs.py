@@ -131,7 +131,6 @@ def create_dtws(dataset_name, rho, num_reference, tot_STS, num_process):
                     else:
                         single_label = [tmp_label - 1]
 
-
                 STS_labels[sts_idx, i * dataset_shape[1]:(i + 1) * dataset_shape[1]] = np.array(
                     single_label * dataset_shape[1])
 

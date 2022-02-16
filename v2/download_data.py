@@ -40,6 +40,7 @@ def download_dataset(dataset_name, distance_type='euclidean', num_cluster=1):
         full_array_train[j, :, :] = sub_array.transpose()
         Y_train.append(Y[i])
     Y_train = np.array(Y_train)
+
     for j, i in enumerate(test_idx):
         sub_array = np.zeros(shapes[1:])
         for cnt, index in enumerate(X.iloc[i].index):
@@ -47,6 +48,7 @@ def download_dataset(dataset_name, distance_type='euclidean', num_cluster=1):
         full_array_test[j, :, :] = sub_array.transpose()
         Y_test.append(Y[i])
     Y_test = np.array(Y_test)
+
     medoids = np.zeros((len(np.unique(Y_train)) * num_cluster, shapes[2], shapes[1]))
     medoids_idxs = np.zeros(len(np.unique(Y_train)) * num_cluster)
     for i, y in enumerate(np.unique(Y_train)):
@@ -131,9 +133,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Download the data from the UCR_UEA database')
     parser.add_argument('--dataset_name', type=str,
                         help='Name of the dataset to be download')
-    parser.add_argument('--distance_type', type=str, default=None,
+    parser.add_argument('--distance_type', type=str, default='euclidean',
                         help='Name of the distance for calculating the clusters')
-    parser.add_argument('--num_cluster', type=int, default=2,
+    parser.add_argument('--num_cluster', type=int, default=1,
                         help='Name of the distance for calculating the clusters')
     args = parser.parse_args()
     download_dataset(dataset_name=args.dataset_name, distance_type=args.distance_type, num_cluster=args.num_cluster)

@@ -58,9 +58,9 @@ class model_wrapper(LightningModule):
         acc = self.train_acc(y_pred, y)
         f1 = self.train_f1(y_pred, y)
 
-        self.log("train_loss", loss)
-        self.log("train_accuracy", acc, prog_bar=True)
-        self.log("train_f1", f1, prog_bar=True)
+        self.log("train_loss", loss, sync_dist=True)
+        self.log("train_accuracy", acc, prog_bar=True, sync_dist=True)
+        self.log("train_f1", f1, prog_bar=True, sync_dist=True)
         return loss
 
     def training_epoch_end(self, training_step_outputs):
@@ -69,8 +69,8 @@ class model_wrapper(LightningModule):
         train_f1 = self.train_f1.compute()
 
         # log metrics
-        self.log("epoch_train_accuracy", train_accuracy, prog_bar=True)
-        self.log("epoch_train_f1", train_f1, prog_bar=True)
+        self.log("epoch_train_accuracy", train_accuracy, prog_bar=True, sync_dist=True)
+        self.log("epoch_train_f1", train_f1, prog_bar=True, sync_dist=True)
 
         # reset all metrics
         self.train_acc.reset()
@@ -112,10 +112,10 @@ class model_wrapper(LightningModule):
         auroc = auroc_metric.compute()
 
         # log metrics
-        self.log(f"{stage}_accuracy", accuracy)
-        self.log(f"{stage}_loss", loss)
-        self.log(f"{stage}_f1", f1)
-        self.log(f"{stage}_auroc", auroc)
+        self.log(f"{stage}_accuracy", accuracy, sync_dist=True)
+        self.log(f"{stage}_loss", loss, sync_dist=True)
+        self.log(f"{stage}_f1", f1, sync_dist=True)
+        self.log(f"{stage}_auroc", auroc, sync_dist=True)
 
         # reset all metrics
         acc_metric.reset()

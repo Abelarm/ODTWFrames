@@ -1,6 +1,6 @@
 import subprocess
 
-for name in ['Chinatown', 'Coffee', 'Fungi', 'Ham', 'Plane', 'PowerCons', 'Gunpoint']:
+for name in ['Chinatown', 'Coffee', 'Fungi', 'Ham', 'Plane', 'PowerCons', 'GunPoint']:
     for mode in ['dtw', 'sts']:
         for arch in ['resnet', 'cnn', 'rnn']:
             for window in [5, 15, 25]:

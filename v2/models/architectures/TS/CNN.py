@@ -1,3 +1,4 @@
+import torch
 from pytorch_lightning import LightningModule
 from torch import nn
 
@@ -26,8 +27,14 @@ class CNN_TS(LightningModule):
             nn.Conv1d(in_channels=self.n_feature_maps * 2, out_channels=self.n_feature_maps * 4,
                       kernel_size=3, padding='same'),
         )
-        self.linear_1 = nn.Linear(in_features=self.n_feature_maps * 4, out_features=self.n_feature_maps * 4)
+        self.linear_1 = self.dynamic_linear((1, channels, window_size))
         self.linear_2 = nn.Linear(in_features=self.n_feature_maps * 4, out_features=self.n_feature_maps * 8)
+
+    def dynamic_linear(self, image_dim):
+        x = torch.rand(*(image_dim))
+        features = self.model(x.float())
+        flat = features.view(features.size(0), -1)
+        return nn.Linear(in_features=flat.size(1), out_features=self.n_feature_maps * 4)
 
     def get_output_shape(self):
         return self.n_feature_maps * 8

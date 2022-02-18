@@ -8,7 +8,7 @@ For pulling submodules `git submodule update --init --recursive`
 
 ### Download the dataset
 
-Select a dataset TS from the [UCR_UEA database](https://www.timeseriesclassification.com/index.php)
+Select a dataset TS from the [UCR_UEA database](https://www.timeseriesclassification.com/dataset.php)
 
 `python v2/download_data.py --dataset_name <dataset_name>`
 

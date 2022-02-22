@@ -27,7 +27,7 @@ class CNN_TS(LightningModule):
             nn.Conv1d(in_channels=self.n_feature_maps * 2, out_channels=self.n_feature_maps * 4,
                       kernel_size=3, padding='same'),
         )
-        self.linear_1 = self.dynamic_linear((1, channels, window_size))
+        self.linear_1 = self.dynamic_linear((2, channels, window_size))
         self.linear_2 = nn.Linear(in_features=self.n_feature_maps * 4, out_features=self.n_feature_maps * 8)
 
     def dynamic_linear(self, image_dim):

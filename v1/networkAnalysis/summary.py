@@ -44,9 +44,13 @@ def plot_acc_loss(history, epochs, save_dir):
 
 def plot_roc_auc(n_classes, y_true, y_pred, save_dir):
 
-    if type(y_true[0]) is not list and type(y_true) is not np.ndarray:
+    if type(y_true[0]) is not list or type(y_true) is not np.ndarray:
         enc = OneHotEncoder(sparse=False)
         y_true = enc.fit_transform(y_true.reshape(-1, 1))
+
+    if type(y_pred[0]) is not list or type(y_pred) is not np.ndarray:
+        enc = OneHotEncoder(sparse=False)
+        y_pred = enc.fit_transform(y_pred.reshape(-1, 1))
 
     fig = plt.figure(dpi=dpi)
 
@@ -107,7 +111,9 @@ def plot_roc_auc(n_classes, y_true, y_pred, save_dir):
 
 
 def plot_confusion_matrix(y_true, y_pred, class_names, save_dir):
-    y_pred = np.argmax(y_pred, axis=1)
+
+    if type(y_pred[0]) is list or len(y_pred.shape) > 1:
+        y_pred = np.argmax(y_pred, axis=1)
 
     titles_options = [("Confusion matrix, without normalization", None),
                       ("Normalized confusion matrix", 'true')]

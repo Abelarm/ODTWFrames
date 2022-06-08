@@ -44,11 +44,11 @@ def plot_acc_loss(history, epochs, save_dir):
 
 def plot_roc_auc(n_classes, y_true, y_pred, save_dir):
 
-    if type(y_true[0]) is not list or type(y_true) is not np.ndarray:
+    if type(y_true[0]) is not list and type(y_true) is not np.ndarray:
         enc = OneHotEncoder(sparse=False)
         y_true = enc.fit_transform(y_true.reshape(-1, 1))
 
-    if type(y_pred[0]) is not list or type(y_pred) is not np.ndarray:
+    if type(y_pred[0]) is not list and type(y_pred) is not np.ndarray:
         enc = OneHotEncoder(sparse=False)
         y_pred = enc.fit_transform(y_pred.reshape(-1, 1))
 

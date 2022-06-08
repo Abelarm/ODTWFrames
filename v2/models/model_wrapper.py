@@ -21,19 +21,19 @@ class model_wrapper(LightningModule):
         self.classifier = nn.Linear(in_features=self.model.get_output_shape(), out_features=labels)
 
         self.train_acc = torchmetrics.Accuracy()
-        self.train_f1 = torchmetrics.F1(num_classes=labels,
+        self.train_f1 = torchmetrics.F1Score(num_classes=labels,
                                         average="micro")
         self.train_auroc = torchmetrics.AUROC(num_classes=labels,
                                               average="macro")
 
         self.val_acc = torchmetrics.Accuracy()
-        self.val_f1 = torchmetrics.F1(num_classes=labels,
+        self.val_f1 = torchmetrics.F1Score(num_classes=labels,
                                       average="micro")
         self.val_auroc = torchmetrics.AUROC(num_classes=labels,
                                             average="macro")
 
         self.test_acc = torchmetrics.Accuracy()
-        self.test_f1 = torchmetrics.F1(num_classes=labels,
+        self.test_f1 = torchmetrics.F1Score(num_classes=labels,
                                        average="micro")
         self.test_auroc = torchmetrics.AUROC(num_classes=labels,
                                              average="macro")

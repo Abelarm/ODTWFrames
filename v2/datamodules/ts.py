@@ -51,16 +51,17 @@ class STS(Dataset):
 
 class stsDataModule(pl.LightningDataModule):
 
-    def __init__(self, npz_path: str, batch_size: int = 32, num_workers: int = 4, split=[0.9, 0.05, 0.05]):
+    def __init__(self, npz_path: str, window_size, batch_size: int = 32, num_workers: int = 4, split=[0.9, 0.05, 0.05]):
         print("Preparing data")
         super().__init__()
         self.data_dir = npz_path
         self.batch_size = batch_size
         self.num_workers = num_workers
         self.split = split
+        self.window_size = window_size
         print("Done")
 
-    def prepare_data(self, window_size=15) -> None:
+    def prepare_data(self) -> None:
         print("Preparing data")
 
         print("Loading train data")
@@ -78,7 +79,7 @@ class stsDataModule(pl.LightningDataModule):
 
         print(f"Train size {sts_train.shape[0]}, val size {sts_val.shape[0]}, test size {sts_test.shape[0]}")
 
-        self.sts_train = STS(sts=sts_train, labels=labels_train, window_size=window_size)
+        self.sts_train = STS(sts=sts_train, labels=labels_train, window_size=self.window_size)
 
         print("sts TRAIN COMPLETED")
 
@@ -92,14 +93,14 @@ class stsDataModule(pl.LightningDataModule):
 
         self.sts_val = STS(sts=sts_val,
                            labels=labels_val,
-                           window_size=window_size,
+                           window_size=self.window_size,
                            transform=transform)
 
         print("STS VAL COMPLETED")
 
         self.sts_test = STS(sts=sts_test,
                             labels=labels_test,
-                            window_size=window_size,
+                            window_size=self.window_size,
                             transform=transform)
 
         print("STS TEST COMPLETED")

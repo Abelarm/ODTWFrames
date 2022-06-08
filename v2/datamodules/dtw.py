@@ -49,15 +49,16 @@ class DTW(Dataset):
 
 class dtwDataModule(pl.LightningDataModule):
 
-    def __init__(self, npz_path: str, batch_size: int = 32, num_workers: int = 4):
+    def __init__(self, npz_path: str, window_size, batch_size: int = 32, num_workers: int = 4):
         print("Preparing data")
         super().__init__()
         self.data_dir = npz_path
         self.batch_size = batch_size
         self.num_workers = num_workers
+        self.window_size = window_size
         print("Done")
 
-    def prepare_data(self, window_size=15) -> None:
+    def prepare_data(self) -> None:
         print("Preparing data")
 
         print("Loading train data")
@@ -81,7 +82,7 @@ class dtwDataModule(pl.LightningDataModule):
 
         self.dtw_train = DTW(dtws=dtw_train,
                              labels=labels_train,
-                             window_size=window_size,
+                             window_size=self.window_size,
                              transform=transform)
 
         print("DTW TRAIN COMPLETED")
@@ -90,14 +91,14 @@ class dtwDataModule(pl.LightningDataModule):
 
         self.dtw_val = DTW(dtws=dtw_val,
                            labels=labels_val,
-                           window_size=window_size,
+                           window_size=self.window_size,
                            transform=transform)
 
         print("DTW VAL COMPLETED")
 
         self.dtw_test = DTW(dtws=dtw_test,
                             labels=labels_test,
-                            window_size=window_size,
+                            window_size=self.window_size,
                             transform=transform)
 
         print("DTW TEST COMPLETED")

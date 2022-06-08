@@ -52,8 +52,8 @@ def train_network(dataset_name, mode, architecture, window_size, batch_size, lr,
 
     AVAIL_GPUS = max(0, torch.cuda.device_count())
 
-    dataMod = datamodule(f'data/{dataset_name}', num_workers=0, batch_size=batch_size)
-    dataMod.prepare_data(window_size=window_size)
+    dataMod = datamodule(f'data/{dataset_name}', window_size=window_size, num_workers=num_workers, batch_size=batch_size)
+    dataMod.prepare_data()
 
     model = model_wrapper(model_architecture=arch_model,
                           ref_size=dataMod.dtw_test.dtws.shape[1] if mode == 'dtw' else None,
@@ -82,7 +82,7 @@ def train_network(dataset_name, mode, architecture, window_size, batch_size, lr,
         trainer.test(model, datamodule=dataMod)
 
         path = f"{root_dir}/checkpoints/lightning_logs/version_{trainer.logger.version}/checkpoints/" \
-               f"epoch={trainer.current_epoch}-step={trainer.global_step - 1}.ckpt"
+               f"epoch={trainer.current_epoch -1}-step={trainer.global_step}.ckpt"
 
     else:
         path = PATH
